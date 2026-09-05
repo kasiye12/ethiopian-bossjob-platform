@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - Bossjob Ethiopia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/payment.css">
+</head>
+<body>
+    <div class="payment-container">
+        <div class="payment-header">
+            <a href="/" class="back-link">← Back</a>
+            <div class="brand">
+                <div class="logo-icon">B</div>
+                <span>Bossjob Ethiopia</span>
+            </div>
+        </div>
+
+        <div class="payment-content">
+            <h1>Choose Payment Method</h1>
+            <p class="payment-subtitle">Select your preferred payment option</p>
+
+            <div class="pricing-plans">
+                <div class="plan-card" onclick="selectPlan('starter')">
+                    <div class="plan-header">
+                        <h3>Starter</h3>
+                        <span class="plan-price">ETB 500</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✅ 3 Job Listings</li>
+                        <li>✅ 30 Candidate Chats</li>
+                        <li>✅ Basic Support</li>
+                        <li>✅ 30 Days Validity</li>
+                    </ul>
+                    <button class="btn-select" id="selectStarter">Select Plan</button>
+                </div>
+
+                <div class="plan-card featured" onclick="selectPlan('professional')">
+                    <div class="featured-badge">Most Popular</div>
+                    <div class="plan-header">
+                        <h3>Professional</h3>
+                        <span class="plan-price">ETB 1,500</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✅ 10 Job Listings</li>
+                        <li>✅ 100 Candidate Chats</li>
+                        <li>✅ Priority Support</li>
+                        <li>✅ Telegram Broadcast</li>
+                        <li>✅ 60 Days Validity</li>
+                    </ul>
+                    <button class="btn-select" id="selectProfessional">Select Plan</button>
+                </div>
+
+                <div class="plan-card" onclick="selectPlan('enterprise')">
+                    <div class="plan-header">
+                        <h3>Enterprise</h3>
+                        <span class="plan-price">ETB 5,000</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✅ Unlimited Job Listings</li>
+                        <li>✅ Unlimited Candidate Chats</li>
+                        <li>✅ Dedicated Support</li>
+                        <li>✅ Telegram Broadcast Pins</li>
+                        <li>✅ 365 Days Validity</li>
+                    </ul>
+                    <button class="btn-select" id="selectEnterprise">Select Plan</button>
+                </div>
+            </div>
+
+            <div class="payment-methods" id="paymentMethods" style="display: none;">
+                <h2>Select Payment Method</h2>
+                <div class="payment-options">
+                    <div class="payment-option" onclick="selectPayment('telebirr')">
+                        <div class="payment-icon">📱</div>
+                        <div>
+                            <h4>Telebirr</h4>
+                            <p>Pay with Telebirr mobile money</p>
+                        </div>
+                    </div>
+                    <div class="payment-option" onclick="selectPayment('chapa')">
+                        <div class="payment-icon">💳</div>
+                        <div>
+                            <h4>Chapa</h4>
+                            <p>Pay with card or mobile wallet</p>
+                        </div>
+                    </div>
+                    <div class="payment-option" onclick="selectPayment('bank')">
+                        <div class="payment-icon">🏦</div>
+                        <div>
+                            <h4>Bank Transfer</h4>
+                            <p>Direct bank deposit</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-summary" id="paymentSummary" style="display: none;">
+                <h2>Payment Summary</h2>
+                <div class="summary-details">
+                    <div class="summary-row">
+                        <span>Selected Plan:</span>
+                        <span id="summaryPlan"></span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Amount:</span>
+                        <span id="summaryAmount"></span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Payment Method:</span>
+                        <span id="summaryMethod"></span>
+                    </div>
+                </div>
+                <button class="btn-pay" onclick="processPayment()">Proceed to Pay</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/payment.js"></script>
+</body>
+</html>

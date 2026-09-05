@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bossjob Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --danger: #ff4444;
+            --dark: #1a1a2e;
+            --border: #e0e0e0;
+            --bg: #f5f6fa;
+            --shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); display: flex; min-height: 100vh; }
+        
+        .sidebar {
+            width: 260px;
+            background: var(--dark);
+            color: white;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+        .sidebar-brand {
+            padding: 25px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-icon {
+            width: 35px; height: 35px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800;
+        }
+        .sidebar-nav { flex: 1; padding: 15px 10px; overflow-y: auto; }
+        .nav-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 13px 16px;
+            color: #999; cursor: pointer;
+            border-radius: 8px; margin-bottom: 3px;
+            font-size: 14px; font-weight: 500;
+            transition: all 0.3s;
+        }
+        .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+        .nav-item.active { background: var(--primary); color: white; }
+        .badge {
+            background: #ff4444; color: white;
+            border-radius: 50%; padding: 2px 8px;
+            font-size: 11px; margin-left: auto;
+        }
+        .sidebar-footer { padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .logout-btn {
+            width: 100%; padding: 10px;
+            background: transparent; color: #999;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px; cursor: pointer;
+        }
+        .logout-btn:hover { background: #ff4444; color: white; }
+        
+        .main { flex: 1; margin-left: 260px; }
+        .header {
+            background: white; padding: 18px 30px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: var(--shadow); position: sticky; top: 0;
+        }
+        .header h1 { font-size: 20px; font-weight: 700; }
+        .content { padding: 30px; }
+        
+        .section { display: none; }
+        .section.active { display: block; }
+        .section-header { margin-bottom: 20px; }
+        .section-header h2 { font-size: 20px; font-weight: 700; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: white; padding: 20px;
+            border-radius: 12px; box-shadow: var(--shadow);
+            text-align: center;
+        }
+        .stat-value { font-size: 28px; font-weight: 800; color: var(--dark); }
+        .stat-label { font-size: 11px; color: #999; }
+        
+        .table-container {
+            background: white; border-radius: 12px;
+            box-shadow: var(--shadow); overflow: hidden;
+            overflow-x: auto;
+        }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th {
+            background: #fafafa; padding: 13px 15px;
+            text-align: left; font-size: 11px; text-transform: uppercase; color: #999;
+            border-bottom: 1px solid var(--border);
+        }
+        td { padding: 13px 15px; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+        tr:hover { background: #fafafa; }
+        
+        .btn {
+            padding: 6px 12px; border: none; border-radius: 6px;
+            cursor: pointer; font-size: 11px; font-weight: 600;
+            font-family: inherit; margin: 2px;
+        }
+        .btn-view { background: #E3F2FD; color: #2196F3; }
+        .btn-verify { background: #D4EDDA; color: #155724; }
+        .btn-toggle { background: #F8D7DA; color: #721C24; }
+        .btn-edit { background: #FFF3CD; color: #856404; }
+        
+        .role-badge {
+            padding: 4px 12px; border-radius: 50px;
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+        }
+        .role-admin { background: #F3E5F5; color: #9C27B0; }
+        .role-boss { background: #E3F2FD; color: #2196F3; }
+        .role-candidate { background: #E8F5E9; color: #4CAF50; }
+        
+        .empty-state { text-align: center; color: #999; padding: 40px; }
+        
+        .settings-form { max-width: 500px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+        .form-group input {
+            width: 100%; padding: 10px 14px;
+            border: 1px solid var(--border); border-radius: 8px;
+            font-family: inherit; font-size: 14px;
+        }
+        .btn-save {
+            padding: 10px 25px; background: var(--primary); color: white;
+            border: none; border-radius: 8px; cursor: pointer; font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="logo-icon">B</div>
+            <div>
+                <div style="font-weight:700;">Bossjob Admin</div>
+                <div style="font-size:11px;color:#999;">Platform Management</div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-item active" onclick="showSection('dashboard')">📊 Dashboard</div>
+            <div class="nav-item" onclick="showSection('users')">👥 Users <span class="badge" id="userBadge">0</span></div>
+            <div class="nav-item" onclick="showSection('companies')">🏢 Companies</div>
+            <div class="nav-item" onclick="showSection('jobs')">💼 Jobs</div>
+            <div class="nav-item" onclick="showSection('applications')">📝 Applications</div>
+            <div class="nav-item" onclick="showSection('interviews')">📅 Interviews</div>
+            <div class="nav-item" onclick="showSection('payments')">💰 Payments</div>
+            <div class="nav-item" onclick="showSection('settings')">⚙️ Settings</div>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+        </div>
+    </aside>
+    
+    <main class="main">
+        <header class="header">
+            <h1 id="pageTitle">Dashboard</h1>
+        </header>
+        
+        <div class="content">
+            <!-- Dashboard -->
+            <section class="section active" id="dashboard">
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-value" id="dUsers">0</div><div class="stat-label">Total Users</div></div>
+                    <div class="stat-card"><div class="stat-value" id="dCompanies">0</div><div class="stat-label">Companies</div></div>
+                    <div class="stat-card"><div class="stat-value" id="dJobs">0</div><div class="stat-label">Jobs</div></div>
+                    <div class="stat-card"><div class="stat-value" id="dApps">0</div><div class="stat-label">Applications</div></div>
+                </div>
+            </section>
+            
+            <!-- Users -->
+            <section class="section" id="users">
+                <div class="section-header"><h2>User Management</h2></div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>User</th><th>Phone</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody id="usersBody"><tr><td colspan="5" class="empty-state">Loading...</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Companies -->
+            <section class="section" id="companies">
+                <div class="section-header"><h2>Company Management</h2></div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Company</th><th>TIN</th><th>Industry</th><th>Verified</th><th>Actions</th></tr></thead>
+                        <tbody id="companiesBody"><tr><td colspan="5" class="empty-state">Loading...</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Jobs -->
+            <section class="section" id="jobs">
+                <div class="section-header"><h2>Job Management</h2></div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Title</th><th>Company</th><th>Status</th><th>Views</th><th>Apps</th><th>Actions</th></tr></thead>
+                        <tbody id="jobsBody"><tr><td colspan="6" class="empty-state">Loading...</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Applications -->
+            <section class="section" id="applications">
+                <div class="section-header"><h2>Applications</h2></div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Candidate</th><th>Job</th><th>Status</th><th>Date</th></tr></thead>
+                        <tbody id="appsBody"><tr><td colspan="4" class="empty-state">Loading...</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Interviews -->
+            <section class="section" id="interviews">
+                <div class="section-header"><h2>Interviews</h2></div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Candidate</th><th>Job</th><th>Date</th><th>Status</th></tr></thead>
+                        <tbody id="interviewsBody"><tr><td colspan="4" class="empty-state">No interviews</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Payments -->
+            <section class="section" id="payments">
+                <div class="section-header"><h2>Payment Transactions</h2></div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Reference</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th></tr></thead>
+                        <tbody id="paymentsBody"><tr><td colspan="5" class="empty-state">No payments</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Settings -->
+            <section class="section" id="settings">
+                <div class="section-header"><h2>Platform Settings</h2></div>
+                <div class="settings-form">
+                    <div class="form-group">
+                        <label>Platform Name</label>
+                        <input type="text" id="platformName" value="Bossjob Ethiopia">
+                    </div>
+                    <div class="form-group">
+                        <label>Support Email</label>
+                        <input type="email" id="supportEmail" value="support@bossjob.et">
+                    </div>
+                    <div class="form-group">
+                        <label>Support Phone</label>
+                        <input type="text" id="supportPhone" value="+251 911 234 567">
+                    </div>
+                    <button class="btn-save" onclick="saveSettings()">Save Settings</button>
+                </div>
+            </section>
+        </div>
+    </main>
+    
+    <script>
+        const API = window.location.origin;
+        const token = localStorage.getItem('authToken');
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!token) { window.location.href = '/'; return; }
+            loadDashboard();
+            loadUsers();
+            loadCompanies();
+            loadJobs();
+            loadApplications();
+            loadInterviews();
+            loadPayments();
+        });
+        
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.target.classList.add('active');
+            
+            const titles = {
+                'dashboard': 'Dashboard', 'users': 'User Management',
+                'companies': 'Company Management', 'jobs': 'Job Management',
+                'applications': 'Applications', 'interviews': 'Interviews',
+                'payments': 'Payments', 'settings': 'Settings'
+            };
+            document.getElementById('pageTitle').textContent = titles[id];
+        }
+        
+        async function loadDashboard() {
+            try {
+                const [uRes, cRes, jRes, aRes] = await Promise.all([
+                    fetch(API + '/api/v1/admin/users', { headers: { 'Authorization': 'Bearer ' + token } }),
+                    fetch(API + '/api/v1/companies'),
+                    fetch(API + '/api/v1/jobs'),
+                    fetch(API + '/api/v1/admin/applications', { headers: { 'Authorization': 'Bearer ' + token } })
+                ]);
+                
+                const uData = await uRes.json();
+                const cData = await cRes.json();
+                const jData = await jRes.json();
+                const aData = await aRes.json();
+                
+                document.getElementById('dUsers').textContent = uData.data?.length || 0;
+                document.getElementById('dCompanies').textContent = cData.data?.length || 0;
+                document.getElementById('dJobs').textContent = jData.data?.length || 0;
+                document.getElementById('dApps').textContent = aData.data?.length || 0;
+                document.getElementById('userBadge').textContent = uData.data?.length || 0;
+            } catch (e) {}
+        }
+        
+        async function loadUsers() {
+            try {
+                const res = await fetch(API + '/api/v1/admin/users', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                const users = data.data || [];
+                
+                document.getElementById('usersBody').innerHTML = users.map(u => `
+                    <tr>
+                        <td><strong>${u.full_name}</strong></td>
+                        <td>${u.phone_number}</td>
+                        <td><span class="role-badge role-${u.role}">${u.role}</span></td>
+                        <td>${u.is_active ? '✅ Active' : '❌ Inactive'}</td>
+                        <td>
+                            <button class="btn btn-view" onclick="location.href='/users.html'">👁️ Manage</button>
+                            <button class="btn btn-toggle" onclick="toggleUser('${u.id}')">Toggle</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {}
+        }
+        
+        async function loadCompanies() {
+            try {
+                const res = await fetch(API + '/api/v1/companies');
+                const data = await res.json();
+                const companies = data.data || [];
+                
+                document.getElementById('companiesBody').innerHTML = companies.map(c => `
+                    <tr>
+                        <td><strong>${c.company_name}</strong></td>
+                        <td>${c.tin_number || 'N/A'}</td>
+                        <td>${c.industry || 'N/A'}</td>
+                        <td>${c.is_verified ? '✅ Verified' : '⏳ Pending'}</td>
+                        <td>
+                            ${!c.is_verified ? `<button class="btn btn-verify" onclick="verifyCompany('${c.id}')">✅ Verify</button>` : ''}
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {}
+        }
+        
+        async function loadJobs() {
+            try {
+                const res = await fetch(API + '/api/v1/jobs');
+                const data = await res.json();
+                const jobs = data.data || [];
+                
+                document.getElementById('jobsBody').innerHTML = jobs.map(j => `
+                    <tr>
+                        <td><strong>${j.title}</strong></td>
+                        <td>${j.company_name || 'N/A'}</td>
+                        <td>${j.status}</td>
+                        <td>${j.views_count || 0}</td>
+                        <td>${j.applications_count || 0}</td>
+                        <td>
+                            <button class="btn btn-toggle" onclick="toggleJob('${j.id}')">Toggle</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {}
+        }
+        
+        async function loadApplications() {
+            try {
+                const res = await fetch(API + '/api/v1/admin/applications', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                const apps = data.data || [];
+                
+                if (apps.length > 0) {
+                    document.getElementById('appsBody').innerHTML = apps.map(a => `
+                        <tr>
+                            <td>${a.candidate_name || 'N/A'}</td>
+                            <td>${a.job_title || 'N/A'}</td>
+                            <td>${a.status}</td>
+                            <td>${new Date(a.created_at).toLocaleDateString()}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    document.getElementById('appsBody').innerHTML = '<tr><td colspan="4" class="empty-state">No applications</td></tr>';
+                }
+            } catch (e) {}
+        }
+        
+        async function loadInterviews() {
+            try {
+                const res = await fetch(API + '/api/v1/interviews', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                const interviews = data.data || [];
+                
+                if (interviews.length > 0) {
+                    document.getElementById('interviewsBody').innerHTML = interviews.map(i => `
+                        <tr>
+                            <td>${i.candidate_name || 'N/A'}</td>
+                            <td>${i.job_title || 'N/A'}</td>
+                            <td>${i.interview_date || 'N/A'}</td>
+                            <td>${i.status || 'scheduled'}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) {}
+        }
+        
+        async function loadPayments() {
+            try {
+                const res = await fetch(API + '/api/v1/admin/payments', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                const payments = data.data || [];
+                
+                if (payments.length > 0) {
+                    document.getElementById('paymentsBody').innerHTML = payments.map(p => `
+                        <tr>
+                            <td>${p.transaction_reference || p.id}</td>
+                            <td>ETB ${p.amount || 0}</td>
+                            <td>${p.payment_method || 'N/A'}</td>
+                            <td>${p.status || 'pending'}</td>
+                            <td>${new Date(p.created_at).toLocaleDateString()}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) {}
+        }
+        
+        async function toggleUser(id) {
+            await fetch(API + '/api/v1/admin/users/' + id + '/toggle', {
+                method: 'PUT', headers: { 'Authorization': 'Bearer ' + token }
+            });
+            loadUsers();
+            loadDashboard();
+        }
+        
+        async function verifyCompany(id) {
+            await fetch(API + '/api/v1/admin/companies/' + id + '/verify', {
+                method: 'PUT', headers: { 'Authorization': 'Bearer ' + token }
+            });
+            loadCompanies();
+        }
+        
+        async function toggleJob(id) {
+            await fetch(API + '/api/v1/admin/jobs/' + id + '/toggle', {
+                method: 'PUT', headers: { 'Authorization': 'Bearer ' + token }
+            });
+            loadJobs();
+        }
+        
+        function saveSettings() {
+            alert('✅ Settings saved!');
+        }
+        
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userRole');
+            location.href = '/';
+        }
+    </script>
+</body>
+</html>

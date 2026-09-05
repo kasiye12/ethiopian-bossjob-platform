@@ -5,16 +5,18 @@ const AppError = require('../utils/AppError');
 const asyncHandler = require('../utils/asyncHandler');
 
 const authMiddleware = {
-    // Verify JWT token
+    /**
+     * Authenticate - Verify JWT token and attach user to request
+     */
     authenticate: asyncHandler(async (req, res, next) => {
         let token;
         
-        // Check Authorization header
+        // Get token from Authorization header
         if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
             token = req.headers.authorization.split(' ')[1];
         }
         
-        // Check token in cookies
+        // Get token from cookie
         if (!token && req.cookies && req.cookies.token) {
             token = req.cookies.token;
         }
@@ -26,18 +28,21 @@ const authMiddleware = {
         try {
             const decoded = jwt.verify(token, config.jwt.secret);
             
-            // Check if user still exists
+            // Get user from database
             const { rows } = await pool.query(
-                'SELECT id, phone_number, email, role, is_active, verification_status FROM users WHERE id = $1 AND is_active = true',
+                `SELECT id, phone_number, email, full_name, role, is_active, verification_status, company_position
+                 FROM users 
+                 WHERE id = $1 AND is_active = true`,
                 [decoded.id]
             );
             
             if (rows.length === 0) {
-                throw new AppError('User no longer exists.', 401);
+                throw new AppError('User not found or inactive', 401);
             }
             
             req.user = rows[0];
             next();
+            
         } catch (error) {
             if (error.name === 'JsonWebTokenError') {
                 throw new AppError('Invalid token. Please login again.', 401);
@@ -48,20 +53,29 @@ const authMiddleware = {
         }
     }),
 
-    // Role-based authorization
+    /**
+     * Authorize - Check user role
+     */
     authorize: (...roles) => {
         return (req, res, next) => {
+            if (!req.user) {
+                return next(new AppError('Authentication required', 401));
+            }
+            
             if (!roles.includes(req.user.role)) {
                 return next(new AppError(
-                    `User role ${req.user.role} is not authorized to access this route`,
+                    `Role '${req.user.role}' is not authorized. Required: ${roles.join(', ')}`,
                     403
                 ));
             }
+            
             next();
         };
     },
 
-    // Optional authentication (for public routes with optional user data)
+    /**
+     * Optional authentication
+     */
     optionalAuth: asyncHandler(async (req, res, next) => {
         let token;
         
@@ -75,8 +89,9 @@ const authMiddleware = {
         
         try {
             const decoded = jwt.verify(token, config.jwt.secret);
+            
             const { rows } = await pool.query(
-                'SELECT id, phone_number, email, role, is_active FROM users WHERE id = $1 AND is_active = true',
+                'SELECT id, phone_number, email, full_name, role, is_active FROM users WHERE id = $1 AND is_active = true',
                 [decoded.id]
             );
             
@@ -84,7 +99,7 @@ const authMiddleware = {
                 req.user = rows[0];
             }
         } catch (error) {
-            // Token is invalid, but we continue as unauthenticated
+            // Invalid token, continue as unauthenticated
         }
         
         next();

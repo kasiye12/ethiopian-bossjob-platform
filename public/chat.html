@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - Bossjob Ethiopia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --dark: #1a1a2e;
+            --border: #e0e0e0;
+            --bg: #f5f6fa;
+            --shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); }
+        
+        .chat-container {
+            display: flex;
+            height: calc(100vh - 60px);
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+        }
+        .chat-sidebar {
+            width: 320px;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header { padding: 18px 20px; border-bottom: 1px solid var(--border); }
+        .sidebar-header h2 { font-size: 18px; font-weight: 800; margin-bottom: 12px; }
+        .chat-tabs { display: flex; gap: 5px; }
+        .chat-tab {
+            padding: 7px 14px; border: none; background: transparent;
+            cursor: pointer; font-family: inherit; font-size: 13px;
+            font-weight: 600; color: #999; border-radius: 50px;
+        }
+        .chat-tab.active { background: var(--primary); color: white; }
+        .chat-list { flex: 1; overflow-y: auto; }
+        .chat-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 15px 18px; cursor: pointer;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .chat-item:hover { background: #fafafa; }
+        .chat-item.active { background: #E8F5E9; border-left: 3px solid var(--primary); }
+        .chat-avatar {
+            width: 45px; height: 45px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 15px;
+        }
+        .chat-info { flex: 1; min-width: 0; }
+        .chat-name { font-weight: 700; font-size: 14px; }
+        .chat-preview { font-size: 12px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chat-time { font-size: 11px; color: #999; }
+        .unread-badge {
+            background: #ff4444; color: white;
+            border-radius: 50%; width: 20px; height: 20px;
+            font-size: 11px; display: flex; align-items: center; justify-content: center;
+        }
+        
+        .chat-main { flex: 1; display: flex; flex-direction: column; }
+        .chat-header {
+            padding: 15px 25px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .chat-header-left { display: flex; align-items: center; gap: 12px; }
+        .chat-header h3 { font-size: 15px; font-weight: 700; }
+        .chat-header p { font-size: 12px; color: var(--primary); }
+        .header-actions { display: flex; gap: 8px; }
+        .action-btn {
+            padding: 7px 14px; border: 1px solid var(--border);
+            border-radius: 6px; background: white; cursor: pointer;
+            font-family: inherit; font-size: 12px; font-weight: 600;
+        }
+        .action-btn:hover { border-color: var(--primary); color: var(--primary); }
+        
+        .messages-area { flex: 1; overflow-y: auto; padding: 25px; background: #fafafa; }
+        .message { max-width: 65%; margin-bottom: 15px; }
+        .message.sent { margin-left: auto; }
+        .message-bubble {
+            padding: 12px 18px; border-radius: 15px; font-size: 14px;
+        }
+        .message.sent .message-bubble { background: var(--primary); color: white; border-bottom-right-radius: 4px; }
+        .message.received .message-bubble { background: white; box-shadow: var(--shadow); border-bottom-left-radius: 4px; }
+        .message-time { font-size: 11px; opacity: 0.7; margin-top: 4px; display: block; }
+        
+        .system-action {
+            text-align: center; margin: 15px 0;
+        }
+        .system-action span {
+            background: #E8F5E9; color: #4CAF50;
+            padding: 6px 18px; border-radius: 50px;
+            font-size: 12px; font-weight: 600;
+        }
+        .action-chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 15px 0; }
+        .chip {
+            padding: 8px 16px; background: white; border: 1px solid var(--border);
+            border-radius: 50px; font-size: 12px; font-weight: 600; cursor: pointer;
+        }
+        .chip:hover { border-color: var(--primary); color: var(--primary); }
+        
+        .chat-input-area {
+            padding: 18px 25px; border-top: 1px solid var(--border);
+            display: flex; gap: 10px; align-items: center;
+        }
+        .chat-input-area input {
+            flex: 1; padding: 13px 20px; border: 1px solid var(--border);
+            border-radius: 25px; font-family: inherit; font-size: 14px;
+        }
+        .send-btn {
+            width: 48px; height: 48px; background: var(--primary);
+            color: white; border: none; border-radius: 50%;
+            cursor: pointer; font-size: 20px;
+        }
+        .empty-chat { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #999; }
+        .empty-chat .icon { font-size: 60px; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Sidebar -->
+        <aside class="chat-sidebar">
+            <div class="sidebar-header">
+                <h2>💬 Chat</h2>
+                <div class="chat-tabs">
+                    <button class="chat-tab active" onclick="filterThreads('all')">All</button>
+                    <button class="chat-tab" onclick="filterThreads('new')">New</button>
+                    <button class="chat-tab" onclick="filterThreads('progress')">In Progress</button>
+                </div>
+            </div>
+            <div class="chat-list" id="chatList">
+                <div class="empty-chat"><p>Loading conversations...</p></div>
+            </div>
+        </aside>
+        
+        <!-- Main -->
+        <main class="chat-main">
+            <div class="chat-header" id="chatHeader" style="display:none;">
+                <div class="chat-header-left">
+                    <div class="chat-avatar" id="headerAvatar">U</div>
+                    <div>
+                        <h3 id="headerName">Select Conversation</h3>
+                        <p id="headerRole">Online</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn" onclick="pinThread()">📌 Pin</button>
+                    <button class="action-btn" onclick="notInterested()">❌ Not Interested</button>
+                </div>
+            </div>
+            
+            <div class="messages-area" id="messagesArea">
+                <div class="empty-chat">
+                    <div class="icon">💬</div>
+                    <h3>Select a conversation</h3>
+                    <p>Choose a chat to start messaging</p>
+                </div>
+            </div>
+            
+            <div class="chat-input-area" id="inputArea" style="display:none;">
+                <input type="text" id="messageInput" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+                <button class="send-btn" onclick="sendMessage()">➤</button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API = window.location.origin;
+        let currentThreadId = null;
+        let currentUserId = null;
+        let allThreads = [];
+        
+        document.addEventListener('DOMContentLoaded', init);
+        
+        async function init() {
+            const token = localStorage.getItem('authToken');
+            if (!token) { window.location.href = '/'; return; }
+            
+            await loadUserInfo();
+            await loadThreads();
+        }
+        
+        async function loadUserInfo() {
+            const token = localStorage.getItem('authToken');
+            try {
+                const res = await fetch(API + '/api/v1/auth/me', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                if (data.success) currentUserId = data.data.id;
+            } catch (e) {}
+        }
+        
+        async function loadThreads() {
+            const token = localStorage.getItem('authToken');
+            try {
+                const res = await fetch(API + '/api/v1/chats/threads', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    allThreads = data.data || [];
+                    renderThreads(allThreads);
+                }
+            } catch (e) {
+                console.error('Error loading threads:', e);
+            }
+        }
+        
+        function renderThreads(threads) {
+            const container = document.getElementById('chatList');
+            
+            if (!threads || threads.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-chat" style="padding:40px;">
+                        <div class="icon">💬</div>
+                        <p>No conversations yet</p>
+                        <p style="font-size:12px;">Apply to jobs to start chatting</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = threads.map(thread => `
+                <div class="chat-item ${thread.id === currentThreadId ? 'active' : ''}" onclick="openThread('${thread.id}', '${thread.other_user_name}', '${thread.other_user_role || 'User'}', '${thread.job_title || ''}')">
+                    <div class="chat-avatar">${(thread.other_user_name || 'U').charAt(0).toUpperCase()}</div>
+                    <div class="chat-info">
+                        <div class="chat-name">${thread.other_user_name || 'User'}</div>
+                        <div class="chat-preview">${thread.last_message || 'No messages'}</div>
+                        <div style="font-size:11px;color:#999;">${thread.company_name} · ${thread.other_user_role || ''}</div>
+                    </div>
+                    <div class="chat-time">
+                        ${thread.last_message_time ? new Date(thread.last_message_time).toLocaleDateString() : ''}
+                        ${thread.unread_count > 0 ? `<div class="unread-badge">${thread.unread_count}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function filterThreads(filter) {
+            document.querySelectorAll('.chat-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            let filtered = allThreads;
+            if (filter === 'new') filtered = allThreads.filter(t => t.unread_count > 0);
+            if (filter === 'progress') filtered = allThreads.filter(t => t.thread_status === 'open' || t.thread_status === 'interview_scheduled');
+            
+            renderThreads(filtered);
+        }
+        
+        async function openThread(threadId, name, role, jobTitle) {
+            currentThreadId = threadId;
+            
+            document.getElementById('chatHeader').style.display = 'flex';
+            document.getElementById('inputArea').style.display = 'flex';
+            document.getElementById('headerName').textContent = name;
+            document.getElementById('headerRole').textContent = role + ' · ' + jobTitle;
+            document.getElementById('headerAvatar').textContent = name.charAt(0).toUpperCase();
+            
+            // Update active state
+            document.querySelectorAll('.chat-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.chat-item').classList.add('active');
+            
+            await loadMessages(threadId);
+        }
+        
+        async function loadMessages(threadId) {
+            const token = localStorage.getItem('authToken');
+            try {
+                const res = await fetch(API + '/api/v1/chats/threads/' + threadId + '/messages', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    renderMessages(data.data || []);
+                }
+            } catch (e) {
+                console.error('Error loading messages:', e);
+            }
+        }
+        
+        function renderMessages(messages) {
+            const container = document.getElementById('messagesArea');
+            
+            if (messages.length === 0) {
+                container.innerHTML = '<div class="empty-chat"><p>No messages yet. Say hello!</p></div>';
+                return;
+            }
+            
+            container.innerHTML = messages.map(msg => `
+                <div class="message ${msg.sender_id === currentUserId ? 'sent' : 'received'}">
+                    <div class="message-bubble">
+                        ${msg.body}
+                        <span class="message-time">${new Date(msg.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const body = input.value.trim();
+            
+            if (!body || !currentThreadId) return;
+            
+            const token = localStorage.getItem('authToken');
+            
+            try {
+                const res = await fetch(API + '/api/v1/chats/threads/' + currentThreadId + '/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ body })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    input.value = '';
+                    await loadMessages(currentThreadId);
+                    await loadThreads();
+                }
+            } catch (e) {
+                alert('Error sending message');
+            }
+        }
+        
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+        
+        async function pinThread() {
+            if (!currentThreadId) return;
+            const token = localStorage.getItem('authToken');
+            
+            try {
+                await fetch(API + '/api/v1/chats/threads/' + currentThreadId + '/pin', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                alert('📌 Thread pinned!');
+                loadThreads();
+            } catch (e) {}
+        }
+        
+        async function notInterested() {
+            if (!currentThreadId) return;
+            if (!confirm('Mark as not interested?')) return;
+            
+            const token = localStorage.getItem('authToken');
+            
+            try {
+                await fetch(API + '/api/v1/chats/threads/' + currentThreadId + '/not-interested', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                alert('Marked as not interested');
+                loadThreads();
+            } catch (e) {}
+        }
+        
+        async function sendResume() {
+            if (!currentThreadId) return;
+            const token = localStorage.getItem('authToken');
+            
+            try {
+                await fetch(API + '/api/v1/chats/threads/' + currentThreadId + '/send-resume', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                await loadMessages(currentThreadId);
+            } catch (e) {}
+        }
+        
+        async function exchangeContact() {
+            if (!currentThreadId) return;
+            const token = localStorage.getItem('authToken');
+            
+            try {
+                await fetch(API + '/api/v1/chats/threads/' + currentThreadId + '/exchange-contact', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                await loadMessages(currentThreadId);
+            } catch (e) {}
+        }
+    </script>
+</body>
+</html>

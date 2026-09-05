@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post a Job - Bossjob Ethiopia</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .job-form-container {
+            max-width: 700px;
+            margin: 50px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .job-form-container h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+        }
+        
+        .form-section h3 {
+            margin-bottom: 15px;
+            color: #4CAF50;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 5px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        
+        .salary-range {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .salary-range input {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <span class="logo">🇪🇹</span>
+                <span class="brand-name">Bossjob</span>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/company-register.html" class="nav-link">Register Company</a>
+                <a href="/post-job.html" class="nav-link active">Post Job</a>
+                <a href="/dashboard.html" class="nav-link">Dashboard</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="job-form-container">
+        <h2>Post a New Job</h2>
+        <form id="jobForm">
+            <div class="form-section">
+                <h3>Job Details</h3>
+                <div class="form-group">
+                    <label>Job Title *</label>
+                    <input type="text" id="jobTitle" placeholder="e.g., Senior Software Developer" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Job Category *</label>
+                        <select id="jobCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="IT">IT & Technology</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Education">Education</option>
+                            <option value="Engineering">Engineering</option>
+                            <option value="Sales">Sales & Marketing</option>
+                            <option value="Customer Service">Customer Service</option>
+                            <option value="Administration">Administration</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Job Type *</label>
+                        <select id="jobType" required>
+                            <option value="">Select Type</option>
+                            <option value="Full-time">Full-time</option>
+                            <option value="Part-time">Part-time</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Internship">Internship</option>
+                            <option value="Remote">Remote</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Job Description *</label>
+                    <textarea id="jobDescription" rows="6" placeholder="Describe the role, responsibilities, and what you're looking for..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Requirements *</label>
+                    <textarea id="jobRequirements" rows="4" placeholder="List the required skills, qualifications, and experience..." required></textarea>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Location</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Region *</label>
+                        <select id="jobRegion" required>
+                            <option value="">Select Region</option>
+                            <option value="Addis Ababa">Addis Ababa</option>
+                            <option value="Oromia">Oromia</option>
+                            <option value="Amhara">Amhara</option>
+                            <option value="Tigray">Tigray</option>
+                            <option value="SNNPR">SNNPR</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Sub City (Optional)</label>
+                        <input type="text" id="jobSubCity" placeholder="e.g., Bole">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Salary Information</h3>
+                <div class="form-group">
+                    <label>Salary Range (ETB)</label>
+                    <div class="salary-range">
+                        <input type="number" id="salaryMin" placeholder="Min" min="0">
+                        <span>to</span>
+                        <input type="number" id="salaryMax" placeholder="Max" min="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="salaryNegotiable"> Salary is negotiable
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Experience & Education</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Experience Level *</label>
+                        <select id="experienceLevel" required>
+                            <option value="">Select Level</option>
+                            <option value="Fresh Graduate">Fresh Graduate</option>
+                            <option value="1-2 Years">1-2 Years</option>
+                            <option value="3-5 Years">3-5 Years</option>
+                            <option value="5-10 Years">5-10 Years</option>
+                            <option value="10+ Years">10+ Years</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Education Level</label>
+                        <select id="educationLevel">
+                            <option value="">Select Education</option>
+                            <option value="TVET">TVET Certificate</option>
+                            <option value="Diploma">Diploma</option>
+                            <option value="Bachelor">Bachelor's Degree</option>
+                            <option value="Master">Master's Degree</option>
+                            <option value="PhD">PhD</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Number of Positions *</label>
+                    <input type="number" id="numPositions" min="1" value="1" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Post Job</button>
+        </form>
+    </div>
+
+    <script src="/js/post-job.js"></script>
+</body>
+</html>

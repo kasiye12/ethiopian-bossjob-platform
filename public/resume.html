@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Resume - Bossjob Ethiopia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --dark: #1a1a2e;
+            --border: #e0e0e0;
+            --bg: #f5f6fa;
+            --shadow: 0 2px 10px rgba(0,0,0,0.08);
+            --radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); }
+        .container { max-width: 1000px; margin: 30px auto; padding: 20px; }
+        
+        .resume-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 25px;
+        }
+        
+        .sidebar { position: sticky; top: 80px; height: fit-content; }
+        .card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .profile-section { text-align: center; }
+        .avatar {
+            width: 70px; height: 70px;
+            background: var(--primary); color: white;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; font-weight: 800;
+            margin: 0 auto 12px;
+        }
+        .profile-name { font-size: 18px; font-weight: 800; }
+        .profile-status {
+            display: inline-block;
+            background: #D4EDDA; color: #155724;
+            padding: 4px 14px; border-radius: 50px;
+            font-size: 11px; font-weight: 600; margin: 8px 0;
+        }
+        
+        .nav-menu { display: flex; flex-direction: column; gap: 2px; }
+        .nav-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 12px; border-radius: 8px;
+            cursor: pointer; font-size: 13px; color: #555;
+            transition: all 0.3s;
+        }
+        .nav-item:hover { background: var(--bg); }
+        .nav-item.active { background: #E8F5E9; color: var(--primary); font-weight: 600; }
+        
+        .main-card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+        }
+        .section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .section-title {
+            font-size: 16px; font-weight: 700;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px;
+        }
+        .edit-icon { cursor: pointer; font-size: 14px; }
+        
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #555; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 9px 12px;
+            border: 1px solid var(--border); border-radius: 6px;
+            font-family: inherit; font-size: 13px;
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        
+        .btn {
+            padding: 8px 16px; border: none; border-radius: 6px;
+            cursor: pointer; font-weight: 600; font-family: inherit; font-size: 13px;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-outline { background: white; color: var(--primary); border: 1px solid var(--primary); }
+        
+        .skills-list { display: flex; flex-wrap: wrap; gap: 6px; }
+        .skill-tag {
+            background: var(--bg); padding: 5px 12px;
+            border-radius: 50px; font-size: 12px; font-weight: 600;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .skill-tag .remove { cursor: pointer; color: #ff4444; font-weight: 700; }
+        
+        .completion-bar {
+            width: 100%; height: 8px; background: var(--border);
+            border-radius: 4px; overflow: hidden; margin: 8px 0;
+        }
+        .completion-fill { height: 100%; background: var(--primary); }
+        
+        .view-mode { display: block; }
+        .edit-mode { display: none; }
+        .editing .view-mode { display: none; }
+        .editing .edit-mode { display: block; }
+    </style>
+</head>
+<body>
+    <header class="navbar" id="appNavbar"></header>
+
+    <div class="container">
+        <div class="resume-layout">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="card profile-section">
+                    <div class="avatar" id="avatarInitial">U</div>
+                    <h3 class="profile-name" id="profileName">Loading...</h3>
+                    <span class="profile-status">Actively looking</span>
+                </div>
+                
+                <div class="card">
+                    <h4 style="margin-bottom:12px;">Resume Menu</h4>
+                    <div class="nav-menu">
+                        <div class="nav-item active" onclick="scrollTo('basic')"><span>👤</span> Basic Info</div>
+                        <div class="nav-item" onclick="scrollTo('preferences')"><span>💼</span> Job Preferences</div>
+                        <div class="nav-item" onclick="scrollTo('summary')"><span>📝</span> Summary</div>
+                        <div class="nav-item" onclick="scrollTo('skills')"><span>🛠️</span> Skills</div>
+                        <div class="nav-item" onclick="scrollTo('education')"><span>🎓</span> Education</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4 style="margin-bottom:10px;">Resume Completion</h4>
+                    <div class="completion-bar">
+                        <div class="completion-fill" id="completionFill" style="width:0%;"></div>
+                    </div>
+                    <strong id="completionPercent">0%</strong>
+                </div>
+            </aside>
+            
+            <!-- Main -->
+            <main class="main-card">
+                <!-- Basic Info -->
+                <div class="section" id="basic">
+                    <div class="section-title">
+                        <span>👤 Basic Info</span>
+                        <span class="edit-icon" onclick="toggleEdit('basic')">✏️</span>
+                    </div>
+                    <div class="view-mode">
+                        <p><strong>Phone:</strong> <span id="vPhone">-</span></p>
+                        <p><strong>Email:</strong> <span id="vEmail">-</span></p>
+                        <p><strong>Location:</strong> <span id="vLocation">-</span></p>
+                    </div>
+                    <div class="edit-mode">
+                        <div class="form-row">
+                            <div class="form-group"><label>Full Name</label><input type="text" id="eName"></div>
+                            <div class="form-group"><label>Email</label><input type="email" id="eEmail"></div>
+                        </div>
+                        <div class="form-group"><label>Location</label><input type="text" id="eLocation"></div>
+                        <button class="btn btn-primary" onclick="saveBasic()">Save</button>
+                    </div>
+                </div>
+                
+                <!-- Job Preferences -->
+                <div class="section" id="preferences">
+                    <div class="section-title">
+                        <span>💼 Job Preferences</span>
+                        <span class="edit-icon" onclick="toggleEdit('preferences')">✏️</span>
+                    </div>
+                    <div class="view-mode">
+                        <p><strong>Title:</strong> <span id="vTitle">-</span></p>
+                        <p><strong>Salary:</strong> <span id="vSalary">-</span></p>
+                    </div>
+                    <div class="edit-mode">
+                        <div class="form-group"><label>Job Title</label><input type="text" id="eTitle"></div>
+                        <div class="form-row">
+                            <div class="form-group"><label>Min Salary</label><input type="number" id="eSalaryMin"></div>
+                            <div class="form-group"><label>Max Salary</label><input type="number" id="eSalaryMax"></div>
+                        </div>
+                        <button class="btn btn-primary" onclick="savePreferences()">Save</button>
+                    </div>
+                </div>
+                
+                <!-- Summary -->
+                <div class="section" id="summary">
+                    <div class="section-title">
+                        <span>📝 Summary</span>
+                        <span class="edit-icon" onclick="toggleEdit('summary')">✏️</span>
+                    </div>
+                    <div class="view-mode">
+                        <p id="vSummary">No summary added yet</p>
+                    </div>
+                    <div class="edit-mode">
+                        <div class="form-group"><textarea id="eSummary" rows="3"></textarea></div>
+                        <button class="btn btn-primary" onclick="saveSummary()">Save</button>
+                    </div>
+                </div>
+                
+                <!-- Skills -->
+                <div class="section" id="skills">
+                    <div class="section-title">
+                        <span>🛠️ Skills</span>
+                        <span class="edit-icon" onclick="toggleEdit('skills')">✏️</span>
+                    </div>
+                    <div class="view-mode">
+                        <div class="skills-list" id="vSkillsList"></div>
+                    </div>
+                    <div class="edit-mode">
+                        <div class="skills-list" id="eSkillsList"></div>
+                        <div class="form-row" style="margin-top:8px;">
+                            <input type="text" id="newSkill" placeholder="Add skill and press Enter" onkeypress="addSkill(event)">
+                        </div>
+                        <button class="btn btn-primary" onclick="saveSkills()">Save Skills</button>
+                    </div>
+                </div>
+                
+                <!-- Education -->
+                <div class="section" id="education">
+                    <div class="section-title">
+                        <span>🎓 Education</span>
+                        <span class="edit-icon" onclick="toggleEdit('education')">✏️</span>
+                    </div>
+                    <div class="view-mode">
+                        <p><strong>Level:</strong> <span id="vEducation">-</span></p>
+                    </div>
+                    <div class="edit-mode">
+                        <div class="form-group">
+                            <label>Education Level</label>
+                            <select id="eEducation">
+                                <option value="">Select</option>
+                                <option value="TVET">TVET Certificate</option>
+                                <option value="Diploma">Diploma</option>
+                                <option value="Bachelor">Bachelor's Degree</option>
+                                <option value="Master">Master's Degree</option>
+                                <option value="PhD">PhD</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="saveEducation()">Save</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <footer class="footer" id="appFooter"></footer>
+
+    <script src="/js/master-layout.js"></script>
+    <script>
+        const API = window.location.origin;
+        let userSkills = [];
+        let resumeData = null;
+        
+        document.addEventListener('DOMContentLoaded', loadResume);
+        
+        async function loadResume() {
+            const token = localStorage.getItem('authToken');
+            if (!token) { window.location.href = '/'; return; }
+            
+            try {
+                const res = await fetch(API + '/api/v1/resume', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    resumeData = data.data;
+                    renderResume(data.data);
+                }
+            } catch (e) {
+                console.error('Error loading resume:', e);
+            }
+        }
+        
+        function renderResume(data) {
+            const basic = data.basic || {};
+            const profile = data.profile || {};
+            
+            // Avatar
+            document.getElementById('avatarInitial').textContent = 
+                (basic.full_name || 'U').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+            document.getElementById('profileName').textContent = basic.full_name || 'User';
+            
+            // Basic Info
+            document.getElementById('vPhone').textContent = basic.phone_number || '-';
+            document.getElementById('vEmail').textContent = basic.email || '-';
+            document.getElementById('vLocation').textContent = profile.current_location || '-';
+            
+            document.getElementById('eName').value = basic.full_name || '';
+            document.getElementById('eEmail').value = basic.email || '';
+            document.getElementById('eLocation').value = profile.current_location || '';
+            
+            // Preferences
+            document.getElementById('vTitle').textContent = profile.profession_title || '-';
+            document.getElementById('vSalary').textContent = 
+                profile.expected_salary_min ? `ETB ${profile.expected_salary_min} - ${profile.expected_salary_max}` : 'Negotiable';
+            
+            document.getElementById('eTitle').value = profile.profession_title || '';
+            document.getElementById('eSalaryMin').value = profile.expected_salary_min || '';
+            document.getElementById('eSalaryMax').value = profile.expected_salary_max || '';
+            
+            // Summary
+            document.getElementById('vSummary').textContent = profile.summary || 'No summary added yet';
+            document.getElementById('eSummary').value = profile.summary || '';
+            
+            // Skills
+            userSkills = profile.skills || [];
+            renderSkillsList();
+            
+            // Education
+            document.getElementById('vEducation').textContent = profile.education_level || '-';
+            document.getElementById('eEducation').value = profile.education_level || '';
+            
+            // Completion
+            updateCompletion();
+        }
+        
+        function renderSkillsList() {
+            const viewList = document.getElementById('vSkillsList');
+            const editList = document.getElementById('eSkillsList');
+            
+            if (userSkills.length === 0) {
+                viewList.innerHTML = '<p style="color:#999;">No skills added</p>';
+                editList.innerHTML = '';
+                return;
+            }
+            
+            viewList.innerHTML = userSkills.map(s => 
+                `<span class="skill-tag">${s}</span>`
+            ).join('');
+            
+            editList.innerHTML = userSkills.map(s => 
+                `<span class="skill-tag">${s} <span class="remove" onclick="removeSkill('${s}')">×</span></span>`
+            ).join('');
+        }
+        
+        function addSkill(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const skill = e.target.value.trim();
+                if (skill && !userSkills.includes(skill)) {
+                    userSkills.push(skill);
+                    renderSkillsList();
+                }
+                e.target.value = '';
+            }
+        }
+        
+        function removeSkill(skill) {
+            userSkills = userSkills.filter(s => s !== skill);
+            renderSkillsList();
+        }
+        
+        function toggleEdit(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.classList.toggle('editing');
+        }
+        
+        function scrollTo(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function updateCompletion() {
+            let percent = 0;
+            if (resumeData?.basic?.full_name) percent += 15;
+            if (resumeData?.basic?.email) percent += 10;
+            if (resumeData?.basic?.phone_number) percent += 10;
+            if (resumeData?.profile?.profession_title) percent += 15;
+            if (userSkills.length > 0) percent += 20;
+            if (resumeData?.profile?.education_level) percent += 15;
+            if (resumeData?.profile?.summary) percent += 15;
+            
+            document.getElementById('completionFill').style.width = percent + '%';
+            document.getElementById('completionPercent').textContent = percent + '%';
+        }
+        
+        // Save functions
+        async function saveBasic() {
+            const token = localStorage.getItem('authToken');
+            try {
+                const res = await fetch(API + '/api/v1/resume/basic', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({
+                        full_name: document.getElementById('eName').value,
+                        email: document.getElementById('eEmail').value,
+                        current_location: document.getElementById('eLocation').value,
+                    })
+                });
+                const data = await res.json();
+                if (data.success) { alert('✅ Saved!'); loadResume(); }
+            } catch (e) { alert('Error saving'); }
+        }
+        
+        async function savePreferences() {
+            const token = localStorage.getItem('authToken');
+            try {
+                const res = await fetch(API + '/api/v1/resume/preferences', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({
+                        profession_title: document.getElementById('eTitle').value,
+                        expected_salary_min: parseFloat(document.getElementById('eSalaryMin').value) || null,
+                        expected_salary_max: parseFloat(document.getElementById('eSalaryMax').value) || null,
+                    })
+                });
+                const data = await res.json();
+                if (data.success) { alert('✅ Saved!'); loadResume(); }
+            } catch (e) { alert('Error saving'); }
+        }
+        
+        async function saveSummary() {
+            const token = localStorage.getItem('authToken');
+            try {
+                const res = await fetch(API + '/api/v1/resume/summary', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ summary: document.getElementById('eSummary').value })
+                });
+                const data = await res.json();
+                if (data.success) { alert('✅ Saved!'); loadResume(); }
+            } catch (e) { alert('Error saving'); }
+        }
+        
+        async function saveSkills() {
+            const token = localStorage.getItem('authToken');
+            try {
+                const res = await fetch(API + '/api/v1/resume/skills', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ skills: userSkills })
+                });
+                const data = await res.json();
+                if (data.success) { alert('✅ Saved!'); loadResume(); }
+            } catch (e) { alert('Error saving'); }
+        }
+        
+        async function saveEducation() {
+            const token = localStorage.getItem('authToken');
+            try {
+                const res = await fetch(API + '/api/v1/resume/education', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ education_level: document.getElementById('eEducation').value })
+                });
+                const data = await res.json();
+                if (data.success) { alert('✅ Saved!'); loadResume(); }
+            } catch (e) { alert('Error saving'); }
+        }
+    </script>
+</body>
+</html>

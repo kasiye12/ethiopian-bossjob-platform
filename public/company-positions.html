@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Positions - Bossjob Ethiopia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --dark: #1a1a2e;
+            --border: #e0e0e0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f5f6fa;
+            padding: 40px 20px;
+        }
+        .positions-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: var(--dark);
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #999;
+            margin-bottom: 40px;
+        }
+        .positions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .position-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .position-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            border-color: var(--primary);
+        }
+        .position-card.selected {
+            border-color: var(--primary);
+            background: #f8fff8;
+        }
+        .position-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+        .position-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+        .position-level {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 10px;
+        }
+        .position-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+        .btn-confirm {
+            display: block;
+            margin: 40px auto 0;
+            padding: 15px 40px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        .btn-confirm:hover {
+            background: #388E3C;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="positions-container">
+        <h1>👔 Select Your Position</h1>
+        <p class="subtitle">Choose your role within the company</p>
+        
+        <div class="positions-grid" id="positionsGrid">
+            <!-- Positions loaded dynamically -->
+        </div>
+        
+        <button class="btn-confirm" onclick="confirmPosition()">Confirm Position</button>
+    </div>
+
+    <script>
+        const positions = [
+            { name: 'Owner', icon: '👑', level: 10, desc: 'Company owner with full access to all features' },
+            { name: 'Founder', icon: '🏗️', level: 10, desc: 'Company founder with full access to all features' },
+            { name: 'CEO', icon: '💼', level: 9, desc: 'Chief Executive Officer with executive access' },
+            { name: 'HR Director', icon: '📊', level: 8, desc: 'Human Resources Director managing HR operations' },
+            { name: 'HR Manager', icon: '👥', level: 7, desc: 'Human Resources Manager handling recruitment' },
+            { name: 'HR Officer', icon: '📋', level: 6, desc: 'Human Resources Officer supporting HR activities' },
+        ];
+        
+        let selectedPosition = null;
+        
+        // Render positions
+        function renderPositions() {
+            const grid = document.getElementById('positionsGrid');
+            
+            grid.innerHTML = positions.map(pos => `
+                <div class="position-card" id="pos-${pos.name.replace(/\s/g, '')}" onclick="selectPosition('${pos.name}')">
+                    <div class="position-icon">${pos.icon}</div>
+                    <h3 class="position-name">${pos.name}</h3>
+                    <p class="position-level">Level ${pos.level}</p>
+                    <p class="position-desc">${pos.desc}</p>
+                </div>
+            `).join('');
+        }
+        
+        // Select position
+        function selectPosition(name) {
+            selectedPosition = name;
+            
+            document.querySelectorAll('.position-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            const selectedCard = document.getElementById(`pos-${name.replace(/\s/g, '')}`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+            }
+        }
+        
+        // Confirm position
+        async function confirmPosition() {
+            if (!selectedPosition) {
+                alert('Please select your position');
+                return;
+            }
+            
+            const token = localStorage.getItem('authToken');
+            
+            try {
+                const response = await fetch('/api/v1/companies/update-position', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ company_position: selectedPosition })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Position updated successfully!');
+                    window.location.href = '/hr-dashboard.html';
+                } else {
+                    alert(data.message || 'Failed to update position');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error updating position');
+            }
+        }
+        
+        // Initialize
+        renderPositions();
+    </script>
+</body>
+</html>

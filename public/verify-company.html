@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Company - Bossjob Ethiopia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --dark: #1a1a2e;
+            --border: #e0e0e0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #f5f6fa;
+            padding: 40px 20px;
+        }
+        .verify-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        .verify-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 24px;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+        p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-verified { background: #d4edda; color: #155724; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: inherit;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="verify-container">
+        <div class="verify-icon">🏢</div>
+        <h1>Company Verification</h1>
+        <p>Your company verification status</p>
+        
+        <div id="verificationStatus">
+            <span class="status-badge status-pending">⏳ Pending Verification</span>
+            <p>Your company documents are being reviewed by our team.</p>
+            <p style="font-size: 14px;">This usually takes 1-2 business days.</p>
+        </div>
+        
+        <div style="margin-top: 30px; display: flex; gap: 10px; justify-content: center;">
+            <a href="/dashboard.html" class="btn btn-primary">Go to Dashboard</a>
+            <a href="/" class="btn btn-outline">Home</a>
+        </div>
+    </div>
+
+    <script>
+        async function checkVerificationStatus() {
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch('/api/v1/companies/my', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    const status = data.data.verification_status;
+                    const container = document.getElementById('verificationStatus');
+                    
+                    if (status === 'verified') {
+                        container.innerHTML = `
+                            <span class="status-badge status-verified">✅ Verified</span>
+                            <p>Your company is verified and can post jobs.</p>
+                        `;
+                    } else if (status === 'rejected') {
+                        container.innerHTML = `
+                            <span class="status-badge status-rejected">❌ Rejected</span>
+                            <p>Your verification was rejected. Please contact support.</p>
+                        `;
+                    } else {
+                        container.innerHTML = `
+                            <span class="status-badge status-pending">⏳ Pending Verification</span>
+                            <p>Your company documents are being reviewed.</p>
+                            <p style="font-size: 14px;">This usually takes 1-2 business days.</p>
+                        `;
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking status:', error);
+            }
+        }
+        
+        checkVerificationStatus();
+    </script>
+</body>
+</html>

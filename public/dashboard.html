@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard - Bossjob Ethiopia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --primary-light: #E8F5E9;
+            --dark: #1a1a2e;
+            --text: #333;
+            --text-light: #666;
+            --text-muted: #999;
+            --border: #e0e0e0;
+            --bg: #f5f6fa;
+            --shadow: 0 2px 10px rgba(0,0,0,0.08);
+            --radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        /* Dashboard Header */
+        .dash-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: var(--radius);
+            padding: 35px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .dash-welcome h1 { font-size: 28px; font-weight: 800; margin-bottom: 5px; }
+        .dash-welcome p { opacity: 0.9; font-size: 14px; }
+        .dash-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .dash-btn {
+            padding: 11px 22px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-family: inherit;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        .dash-btn-white { background: white; color: #764ba2; }
+        .dash-btn-white:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .dash-btn-outline { background: transparent; color: white; border: 2px solid white; }
+        .dash-btn-outline:hover { background: white; color: #764ba2; }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 6px 25px rgba(0,0,0,0.12); }
+        .stat-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+        }
+        .stat-icon.blue { background: #E3F2FD; }
+        .stat-icon.green { background: #E8F5E9; }
+        .stat-icon.orange { background: #FFF3CD; }
+        .stat-icon.purple { background: #F3E5F5; }
+        .stat-info { flex: 1; }
+        .stat-value { font-size: 28px; font-weight: 800; color: var(--dark); display: block; }
+        .stat-label { font-size: 12px; color: var(--text-muted); }
+        .stat-change { font-size: 11px; font-weight: 600; }
+        .stat-change.up { color: #4CAF50; }
+        .stat-change.down { color: #ff4444; }
+        
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .content-card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 25px;
+        }
+        .content-card h3 {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .view-all { font-size: 12px; color: var(--primary); cursor: pointer; font-weight: 600; }
+        
+        /* Application List */
+        .app-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .app-item:hover { background: #fafafa; border-color: var(--primary); }
+        .app-avatar {
+            width: 42px;
+            height: 42px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .app-info { flex: 1; min-width: 0; }
+        .app-info h4 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+        .app-info p { font-size: 12px; color: var(--text-muted); }
+        
+        .status-badge {
+            padding: 5px 14px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .status-applied { background: #E3F2FD; color: #2196F3; }
+        .status-shortlisted { background: #FFF3CD; color: #856404; }
+        .status-interviewed { background: #E8F5E9; color: #155724; }
+        .status-hired { background: #D4EDDA; color: #155724; }
+        .status-rejected { background: #F8D7DA; color: #721C24; }
+        
+        /* Jobs Mini Grid */
+        .jobs-mini-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+        }
+        .job-mini {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid var(--primary);
+        }
+        .job-mini:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+        .job-mini h4 { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+        .job-mini p { font-size: 11px; color: var(--text-muted); }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+        .empty-state .icon { font-size: 50px; margin-bottom: 12px; }
+        
+        @media (max-width: 768px) {
+            .content-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .dash-header { text-align: center; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar" id="appNavbar"></header>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="dash-header">
+            <div class="dash-welcome">
+                <h1>Welcome back, <span id="userName">User</span>! 👋</h1>
+                <p id="welcomeMessage">Here's what's happening with your job search</p>
+            </div>
+            <div class="dash-actions">
+                <a href="/jobs.html" class="dash-btn dash-btn-white">💼 Browse Jobs</a>
+                <a href="/resume.html" class="dash-btn dash-btn-outline">📄 Edit Resume</a>
+            </div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card" onclick="location.href='/jobs.html'">
+                <div class="stat-icon blue">📝</div>
+                <div class="stat-info">
+                    <span class="stat-value" id="statApplications">0</span>
+                    <span class="stat-label">Applications</span>
+                    <span class="stat-change up">↑ Active</span>
+                </div>
+            </div>
+            <div class="stat-card" onclick="location.href='/chat.html'">
+                <div class="stat-icon green">💬</div>
+                <div class="stat-info">
+                    <span class="stat-value" id="statMessages">0</span>
+                    <span class="stat-label">Messages</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange">🔔</div>
+                <div class="stat-info">
+                    <span class="stat-value" id="statNotifications">0</span>
+                    <span class="stat-label">Notifications</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple">👁️</div>
+                <div class="stat-info">
+                    <span class="stat-value" id="statViews">0</span>
+                    <span class="stat-label">Profile Views</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="content-grid">
+            <!-- My Applications -->
+            <div class="content-card">
+                <h3>📝 My Applications <span class="view-all" onclick="location.href='/jobs.html'">View All →</span></h3>
+                <div id="applicationsList">
+                    <div class="empty-state">
+                        <div class="icon">📝</div>
+                        <p>Loading applications...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recommended Jobs -->
+            <div class="content-card">
+                <h3>🌟 Recommended Jobs <span class="view-all" onclick="location.href='/jobs.html'">View All →</span></h3>
+                <div class="jobs-mini-grid" id="recommendedJobs">
+                    <div class="empty-state">
+                        <div class="icon">🌟</div>
+                        <p>Loading recommendations...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="content-card" style="margin-bottom:25px;">
+            <h3>🕐 Recent Activity</h3>
+            <div id="recentActivity">
+                <div class="empty-state">
+                    <div class="icon">🕐</div>
+                    <p>No recent activity</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer" id="appFooter"></footer>
+
+    <script src="/js/master-layout.js"></script>
+    <script>
+        const API = window.location.origin;
+        
+        document.addEventListener('DOMContentLoaded', initDashboard);
+        
+        async function initDashboard() {
+            const token = localStorage.getItem('authToken');
+            if (!token) { window.location.href = '/'; return; }
+            
+            await loadUserInfo();
+            await loadApplications();
+            await loadRecommendedJobs();
+            await loadNotifications();
+        }
+        
+        async function loadUserInfo() {
+            const token = localStorage.getItem('authToken');
+            try {
+                const res = await fetch(API + '/api/v1/auth/me', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                
+                if (data.success && data.data) {
+                    const user = data.data;
+                    document.getElementById('userName').textContent = user.full_name || 'User';
+                    
+                    if (user.role === 'boss' || user.role === 'admin') {
+                        document.getElementById('welcomeMessage').textContent = 'Manage your company and find talent';
+                    } else {
+                        document.getElementById('welcomeMessage').textContent = "Here's what's happening with your job search";
+                    }
+                }
+            } catch (e) {}
+        }
+        
+        async function loadApplications() {
+            const token = localStorage.getItem('authToken');
+            try {
+                const res = await fetch(API + '/api/v1/applications/my', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    const apps = data.data || [];
+                    document.getElementById('statApplications').textContent = apps.length;
+                    
+                    const container = document.getElementById('applicationsList');
+                    
+                    if (apps.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <div class="icon">📝</div>
+                                <p>No applications yet</p>
+                                <a href="/jobs.html" style="color:#4CAF50;font-weight:600;">Browse Jobs</a>
+                            </div>
+                        `;
+                    } else {
+                        container.innerHTML = apps.slice(0, 5).map(app => `
+                            <div class="app-item" onclick="location.href='/job-details.html?id=${app.job_id}'">
+                                <div class="app-avatar">${(app.title || 'J').charAt(0)}</div>
+                                <div class="app-info">
+                                    <h4>${app.title || 'Position'}</h4>
+                                    <p>${app.company_name || 'Company'} · ${new Date(app.created_at).toLocaleDateString()}</p>
+                                </div>
+                                <span class="status-badge status-${app.status || 'applied'}">${app.status || 'applied'}</span>
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch (e) {}
+        }
+        
+        async function loadRecommendedJobs() {
+            try {
+                const res = await fetch(API + '/api/v1/jobs?limit=6');
+                const data = await res.json();
+                
+                if (data.success && data.data.length > 0) {
+                    const container = document.getElementById('recommendedJobs');
+                    container.innerHTML = data.data.map(job => `
+                        <div class="job-mini" onclick="location.href='/job-details.html?id=${job.id}'">
+                            <h4>${job.title}</h4>
+                            <p>${job.company_name}</p>
+                            <p>📍 ${job.region} · 💰 ${job.salary_min_etb ? 'ETB ' + job.salary_min_etb : 'Negotiable'}</p>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {}
+        }
+        
+        async function loadNotifications() {
+            const token = localStorage.getItem('authToken');
+            try {
+                const res = await fetch(API + '/api/v1/notifications', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    const notifications = data.data || [];
+                    document.getElementById('statNotifications').textContent = notifications.length;
+                }
+            } catch (e) {}
+        }
+    </script>
+</body>
+</html>

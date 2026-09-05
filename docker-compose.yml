@@ -1,21 +1,6 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:15-alpine
-    container_name: bossjob_postgres
-    environment:
-      POSTGRES_DB: bossjob_ethiopia
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./src/database/init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - bossjob_network
-
   redis:
     image: redis:7-alpine
     container_name: bossjob_redis
@@ -24,26 +9,11 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
-    networks:
-      - bossjob_network
-
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: bossjob_pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@bossjob.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    ports:
-      - "5050:80"
-    depends_on:
-      - postgres
-    networks:
-      - bossjob_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  postgres_data:
   redis_data:
-
-networks:
-  bossjob_network:
-    driver: bridge

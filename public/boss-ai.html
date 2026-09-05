@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boss AI - Bossjob Ethiopia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --dark: #1a1a2e;
+            --bg: #f5f6fa;
+            --border: #e0e0e0;
+            --shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .ai-container {
+            width: 100%;
+            max-width: 800px;
+            height: 90vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .ai-header {
+            background: var(--dark);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .ai-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.5); }
+            70% { box-shadow: 0 0 0 15px rgba(76, 175, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+        
+        .ai-header-info h1 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .ai-header-info p {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+        
+        .beta-tag {
+            background: #FF9800;
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: auto;
+        }
+        
+        .ai-messages {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: var(--bg);
+        }
+        
+        .message {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message.user {
+            flex-direction: row-reverse;
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .message.user .message-avatar {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .message.ai .message-avatar {
+            background: var(--dark);
+            color: white;
+        }
+        
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 15px;
+            background: white;
+            box-shadow: var(--shadow);
+        }
+        
+        .message.user .message-content {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .message-content p {
+            margin-bottom: 10px;
+        }
+        
+        .message-content ul {
+            margin: 10px 0 10px 20px;
+        }
+        
+        .message-content li {
+            margin-bottom: 5px;
+        }
+        
+        .suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .suggestion-chip {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 8px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        
+        .suggestion-chip:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .ai-input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid var(--border);
+        }
+        
+        .ai-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .ai-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid var(--border);
+            border-radius: 25px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        
+        .ai-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .send-btn {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .send-btn:hover {
+            background: #388E3C;
+            transform: scale(1.1);
+        }
+        
+        .send-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            gap: 5px;
+            padding: 10px 15px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #999;
+            border-radius: 50%;
+            animation: typing 1.5s infinite;
+        }
+        
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="ai-container">
+        <div class="ai-header">
+            <div class="ai-avatar">🤖</div>
+            <div class="ai-header-info">
+                <h1>Boss AI Assistant</h1>
+                <p>Your intelligent HR companion</p>
+            </div>
+            <span class="beta-tag">BETA</span>
+        </div>
+        
+        <div class="ai-messages" id="aiMessages">
+            <div class="message ai">
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                    <p><strong>Hello! 👋</strong> I'm Boss AI, your intelligent HR assistant.</p>
+                    <p>I can help you with:</p>
+                    <ul>
+                        <li>🔍 Finding the best candidates</li>
+                        <li>📝 Writing job descriptions</li>
+                        <li>📊 Analyzing applications</li>
+                        <li>📅 Scheduling interviews</li>
+                        <li>💡 HR advice and best practices</li>
+                    </ul>
+                    <p>What would you like help with today?</p>
+                    
+                    <div class="suggestion-chips">
+                        <button class="suggestion-chip" onclick="quickAsk('Find me the best candidates for a Software Developer role')">🔍 Find Candidates</button>
+                        <button class="suggestion-chip" onclick="quickAsk('Write a job description for an Accountant')">📝 Write Job Description</button>
+                        <button class="suggestion-chip" onclick="quickAsk('Analyze my recent applications')">📊 Analyze Applications</button>
+                        <button class="suggestion-chip" onclick="quickAsk('Best interview questions for a Marketing Manager')">💡 Interview Questions</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="ai-input-container">
+            <div class="ai-input-wrapper">
+                <input type="text" class="ai-input" id="aiInput" placeholder="Ask Boss AI anything..." onkeypress="handleKeyPress(event)">
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/js/boss-ai.js"></script>
+</body>
+</html>

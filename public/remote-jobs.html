@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote Jobs - Bossjob Ethiopia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f5f6fa; }
+        .container { max-width: 1100px; margin: 30px auto; padding: 20px; }
+        .header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white; text-align: center;
+            padding: 50px 20px; border-radius: 16px; margin-bottom: 30px;
+        }
+        .header h1 { font-size: 30px; margin-bottom: 10px; }
+        .jobs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+        .job-card {
+            background: white; padding: 20px; border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08); border-left: 4px solid #2196F3;
+        }
+        .job-card h3 { margin-bottom: 5px; }
+        .apply-btn {
+            margin-top: 10px; padding: 8px 20px; background: #4CAF50;
+            color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar" id="appNavbar"></header>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 Remote Jobs</h1>
+            <p>Work from anywhere in Ethiopia</p>
+        </div>
+        <div class="jobs-grid" id="remoteJobs">
+            <p style="color:#999;">Loading...</p>
+        </div>
+    </div>
+    <footer class="footer" id="appFooter"></footer>
+    <script src="/js/i18n.js"></script>
+    <script src="/js/master-layout.js"></script>
+    <script src="/js/apply-modal.js"></script>
+    <script src="/js/job-apply.js"></script>
+    <script>
+        fetch('/api/v1/jobs?job_type=Remote')
+            .then(r => r.json())
+            .then(data => {
+                const jobs = data.data || [];
+                const container = document.getElementById('remoteJobs');
+                if (jobs.length > 0) {
+                    container.innerHTML = jobs.map(job => `
+                        <div class="job-card">
+                            <span style="background:#E3F2FD;color:#2196F3;padding:4px 12px;border-radius:50px;font-size:11px;">🌐 Remote</span>
+                            <h3 style="margin-top:10px;">${job.title}</h3>
+                            <p style="color:#2196F3;font-weight:600;">${job.company_name}</p>
+                            <p style="color:#666;font-size:13px;">📍 ${job.region} | 💰 ${job.salary_min_etb ? 'ETB ' + job.salary_min_etb : 'Negotiable'}</p>
+                            <button class="apply-btn" onclick="handleApply('${job.id}', '${job.title}')">Apply Now</button>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p style="color:#999;">No remote jobs found</p>';
+                }
+            });
+    </script>
+</body>
+</html>

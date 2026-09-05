@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Jobs - Bossjob Ethiopia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/jobs.css">
+    <style>
+        .filters-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .filter-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+        }
+        
+        .filter-group select,
+        .filter-group input {
+            padding: 8px 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 13px;
+        }
+        
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        .btn-reset {
+            padding: 8px 15px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+        }
+        
+        .btn-reset:hover {
+            background: #cc0000;
+        }
+        
+        .results-count {
+            margin-bottom: 15px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <header class="top-nav">
+        <div class="container">
+            <div class="nav-left">
+                <a href="/" class="logo">🇪🇹 Bossjob</a>
+                <nav class="main-nav">
+                    <a href="/" class="nav-link">Home</a>
+                    <a href="/jobs-full.html" class="nav-link active">Find Jobs</a>
+                    <a href="/companies.html" class="nav-link">Companies</a>
+                    <a href="/remote-jobs.html" class="nav-link">Remote Jobs</a>
+                </nav>
+            </div>
+            <div class="nav-right">
+                <a href="/chat.html" class="nav-link">💬 Chat</a>
+                <div class="user-avatar">KT</div>
+            </div>
+        </div>
+    </header>
+
+    <div style="max-width: 1200px; margin: 30px auto; padding: 0 20px;">
+        <h1 style="margin-bottom: 20px;">💼 Find Jobs</h1>
+        
+        <!-- Search Bar -->
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <input type="text" id="searchInput" placeholder="Search jobs by title, company, or keyword..." style="flex: 1; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px;">
+            <button style="padding: 12px 25px; background: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700;">Search</button>
+        </div>
+        
+        <!-- Filters -->
+        <div class="filters-bar">
+            <div class="filter-group">
+                <label>Category</label>
+                <select id="categoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="IT">IT & Technology</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Sales">Sales</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Customer Service">Customer Service</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Education">Education</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Region</label>
+                <select id="regionFilter">
+                    <option value="">All Regions</option>
+                    <option value="Addis Ababa">Addis Ababa</option>
+                    <option value="Oromia">Oromia</option>
+                    <option value="Amhara">Amhara</option>
+                    <option value="Tigray">Tigray</option>
+                    <option value="Dire Dawa">Dire Dawa</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Job Type</label>
+                <select id="jobTypeFilter">
+                    <option value="">All Types</option>
+                    <option value="Remote">Remote</option>
+                    <option value="On-site">On-site</option>
+                    <option value="Hybrid">Hybrid</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Experience</label>
+                <select id="experienceFilter">
+                    <option value="">Any Experience</option>
+                    <option value="Fresh Graduate">Fresh Graduate</option>
+                    <option value="1-3">1-3 Years</option>
+                    <option value="3-5">3-5 Years</option>
+                    <option value="5-10">5-10 Years</option>
+                    <option value="10+">10+ Years</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Education</label>
+                <select id="educationFilter">
+                    <option value="">Any Education</option>
+                    <option value="Diploma">Diploma</option>
+                    <option value="Bachelor">Bachelor's Degree</option>
+                    <option value="Master">Master's Degree</option>
+                    <option value="PhD">PhD</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Salary</label>
+                <select id="salaryFilter">
+                    <option value="">Any Salary</option>
+                    <option value="under10k">Under ETB 10,000</option>
+                    <option value="10-20k">ETB 10,000 - 20,000</option>
+                    <option value="20-30k">ETB 20,000 - 30,000</option>
+                    <option value="30k+">ETB 30,000+</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>&nbsp;</label>
+                <button class="btn-reset" onclick="resetFilters()">Reset All</button>
+            </div>
+        </div>
+        
+        <!-- Results Count -->
+        <div class="results-count" id="resultsCount"></div>
+        
+        <!-- Jobs Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;" id="jobsList">
+            <!-- Jobs rendered here -->
+        </div>
+        
+        <!-- Pagination -->
+        <div style="display: flex; justify-content: center; gap: 5px; margin-top: 30px;" id="pagination"></div>
+    </div>
+
+    <script src="/js/jobs-filter.js"></script>
+</body>
+</html>

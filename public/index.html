@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bossjob Ethiopia - #1 Job Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f5f6fa; }
+        
+        .hero {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-align: center;
+            padding: 80px 20px;
+        }
+        .hero h1 { font-size: 40px; margin-bottom: 10px; }
+        .hero p { font-size: 18px; opacity: 0.9; margin-bottom: 25px; }
+        .hero-btn {
+            display: inline-block;
+            padding: 14px 35px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            margin: 5px;
+            font-size: 16px;
+        }
+        .hero-btn:hover { background: #388E3C; }
+        
+        .categories {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .categories h2 { margin-bottom: 25px; font-size: 28px; }
+        .cat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+        }
+        .cat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .cat-card:hover { transform: translateY(-5px); }
+        .cat-card span { font-size: 35px; display: block; margin-bottom: 10px; }
+        .cat-card h3 { font-size: 14px; margin-bottom: 5px; }
+        .cat-card p { font-size: 11px; color: #999; }
+        
+        .jobs-section {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        .jobs-section h2 { text-align: center; margin-bottom: 25px; }
+        .jobs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 18px;
+        }
+        .job-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border-left: 4px solid #4CAF50;
+        }
+        .job-card h3 { font-size: 16px; margin-bottom: 5px; }
+        .job-company { color: #4CAF50; font-weight: 600; font-size: 13px; }
+        .job-info { font-size: 13px; color: #666; margin: 8px 0; }
+        .apply-btn {
+            padding: 8px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar" id="appNavbar"></header>
+
+    <section class="hero">
+        <h1 data-i18n="hero_title">Find Your Dream Job in Ethiopia</h1>
+        <p data-i18n="hero_subtitle">Connect with 10,000+ employers across Ethiopia</p>
+        <div>
+            <a href="/jobs.html" class="hero-btn" data-i18n="nav_find_jobs">💼 Find Jobs</a>
+            <a href="/remote-jobs.html" class="hero-btn" style="background:white;color:#4CAF50;">🌐 Remote Jobs</a>
+        </div>
+    </section>
+
+    <section class="categories">
+        <h2>Explore by Category</h2>
+        <div class="cat-grid">
+            <div class="cat-card" onclick="location.href='/jobs.html?category=IT'"><span>💻</span><h3>IT & Tech</h3><p>2,500+ Jobs</p></div>
+            <div class="cat-card" onclick="location.href='/jobs.html?category=Finance'"><span>💰</span><h3>Finance</h3><p>1,800+ Jobs</p></div>
+            <div class="cat-card" onclick="location.href='/jobs.html?category=Healthcare'"><span>🏥</span><h3>Healthcare</h3><p>1,200+ Jobs</p></div>
+            <div class="cat-card" onclick="location.href='/jobs.html?category=Education'"><span>📚</span><h3>Education</h3><p>900+ Jobs</p></div>
+            <div class="cat-card" onclick="location.href='/jobs.html?category=Engineering'"><span>⚙️</span><h3>Engineering</h3><p>1,500+ Jobs</p></div>
+            <div class="cat-card" onclick="location.href='/jobs.html?category=Sales'"><span>📈</span><h3>Sales</h3><p>2,000+ Jobs</p></div>
+        </div>
+    </section>
+
+    <section class="jobs-section">
+        <h2>Featured Jobs</h2>
+        <div class="jobs-grid" id="featuredJobs">
+            <p style="color:#999;text-align:center;grid-column:1/-1;">Loading jobs...</p>
+        </div>
+    </section>
+
+    <footer class="footer" id="appFooter"></footer>
+
+    <script src="/js/i18n.js"></script>
+    <script src="/js/master-layout.js"></script>
+    <script src="/js/apply-modal.js"></script>
+    <script src="/js/job-apply.js"></script>
+    <script>
+        // Load featured jobs
+        fetch('/api/v1/jobs?limit=6')
+            .then(r => r.json())
+            .then(data => {
+                const jobs = data.data || [];
+                const container = document.getElementById('featuredJobs');
+                
+                if (jobs.length > 0) {
+                    container.innerHTML = jobs.map(job => `
+                        <div class="job-card">
+                            <h3>${job.title}</h3>
+                            <p class="job-company">${job.company_name || 'Company'}</p>
+                            <p class="job-info">📍 ${job.region} | 💰 ${job.salary_min_etb ? 'ETB ' + job.salary_min_etb : 'Negotiable'}</p>
+                            <button class="apply-btn" onclick="handleApply('${job.id}', '${job.title}')">Apply Now</button>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p style="color:#999;text-align:center;grid-column:1/-1;">No jobs available</p>';
+                }
+            })
+            .catch(() => {
+                document.getElementById('featuredJobs').innerHTML = '<p style="color:#999;text-align:center;grid-column:1/-1;">Error loading jobs</p>';
+            });
+    </script>
+</body>
+</html>

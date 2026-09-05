@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard - Bossjob Ethiopia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --dark: #1a1a2e;
+            --border: #e0e0e0;
+            --bg: #f5f6fa;
+            --shadow: 0 2px 10px rgba(0,0,0,0.08);
+            --radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); }
+        .container { max-width: 1100px; margin: 30px auto; padding: 20px; }
+        
+        .role-banner {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: var(--radius);
+            padding: 30px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .role-info h1 { font-size: 24px; font-weight: 800; margin-bottom: 5px; }
+        .role-info p { opacity: 0.9; font-size: 14px; }
+        .role-badge {
+            background: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        
+        .quick-actions {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        .quick-actions h2 { font-size: 18px; font-weight: 700; margin-bottom: 15px; }
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        .action-card {
+            padding: 20px;
+            background: var(--bg);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            border: 1px solid transparent;
+        }
+        .action-card:hover {
+            background: white;
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+        .action-card .icon { font-size: 30px; margin-bottom: 8px; }
+        .action-card h3 { font-size: 14px; font-weight: 700; color: var(--dark); }
+        .action-card p { font-size: 12px; color: #999; margin-top: 4px; }
+        
+        .permissions-list {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 25px;
+        }
+        .permissions-list h2 { font-size: 18px; font-weight: 700; margin-bottom: 15px; }
+        .permission-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+        .permission-item .check { color: var(--primary); font-weight: 700; }
+        .permission-item .denied { color: #ff4444; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Role Banner -->
+        <div class="role-banner">
+            <div class="role-info">
+                <h1 id="roleTitle">Dashboard</h1>
+                <p id="roleDescription">Welcome to your personalized dashboard</p>
+            </div>
+            <span class="role-badge" id="roleBadge">🌐 Guest</span>
+        </div>
+        
+        <!-- Quick Actions (Role-Specific) -->
+        <div class="quick-actions">
+            <h2>🚀 Quick Actions</h2>
+            <div class="actions-grid" id="quickActions">
+                <!-- Populated by JavaScript based on role -->
+            </div>
+        </div>
+        
+        <!-- Permissions -->
+        <div class="permissions-list">
+            <h2>🔐 Your Permissions</h2>
+            <div id="permissionsList">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <script src="/js/role-permissions.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const roleInfo = RolePermissions.getRoleInfo();
+            
+            // Update role info
+            document.getElementById('roleTitle').textContent = `${roleInfo.icon} ${roleInfo.label} Dashboard`;
+            document.getElementById('roleBadge').textContent = `${roleInfo.icon} ${roleInfo.label}`;
+            
+            // Update quick actions
+            const pages = RolePermissions.getPages();
+            document.getElementById('quickActions').innerHTML = pages.map(page => `
+                <div class="action-card" onclick="location.href='${page.url}'">
+                    <div class="icon">${page.icon}</div>
+                    <h3>${page.name}</h3>
+                    <p>Click to access</p>
+                </div>
+            `).join('');
+            
+            // Update permissions
+            const permissions = roleInfo.permissions;
+            document.getElementById('permissionsList').innerHTML = permissions.map(p => `
+                <div class="permission-item">
+                    <span class="check">✅</span>
+                    <span>${p.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                </div>
+            `).join('');
+        });
+    </script>
+</body>
+</html>

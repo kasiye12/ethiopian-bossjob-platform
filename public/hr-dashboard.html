@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bossjob HR - Employer Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --dark: #1a1a2e;
+            --border: #e0e0e0;
+            --bg: #f5f6fa;
+            --shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); display: flex; min-height: 100vh; }
+        
+        .sidebar {
+            width: 250px;
+            background: var(--dark);
+            color: white;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+        .sidebar-brand {
+            padding: 22px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-icon {
+            width: 35px; height: 35px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800;
+        }
+        .sidebar-nav { flex: 1; padding: 15px 10px; overflow-y: auto; }
+        .nav-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 13px 16px;
+            color: #999; cursor: pointer;
+            border-radius: 8px; margin-bottom: 3px;
+            font-size: 14px; font-weight: 500;
+            transition: all 0.3s;
+        }
+        .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+        .nav-item.active { background: var(--primary); color: white; }
+        .badge {
+            background: #ff4444; color: white;
+            border-radius: 50%; padding: 2px 8px;
+            font-size: 11px; margin-left: auto;
+        }
+        .sidebar-footer { padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .logout-btn {
+            width: 100%; padding: 10px;
+            background: transparent; color: #999;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px; cursor: pointer;
+        }
+        .logout-btn:hover { background: #ff4444; color: white; }
+        
+        .main { flex: 1; margin-left: 250px; }
+        .header {
+            background: white; padding: 18px 30px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: var(--shadow); position: sticky; top: 0;
+        }
+        .header h1 { font-size: 20px; font-weight: 700; }
+        .content { padding: 30px; }
+        
+        .section { display: none; }
+        .section.active { display: block; }
+        .section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px;
+        }
+        .section-header h2 { font-size: 20px; font-weight: 700; }
+        
+        .btn-primary {
+            padding: 10px 20px; background: var(--primary); color: white;
+            border: none; border-radius: 8px; cursor: pointer; font-weight: 600;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: white; padding: 20px;
+            border-radius: 12px; box-shadow: var(--shadow);
+        }
+        .stat-value { font-size: 26px; font-weight: 800; }
+        .stat-label { font-size: 12px; color: #999; }
+        
+        .job-list { display: grid; gap: 12px; }
+        .job-item {
+            background: white; padding: 18px;
+            border-radius: 10px; box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary);
+        }
+        .job-item h3 { font-size: 15px; font-weight: 700; }
+        .job-item p { font-size: 13px; color: #666; }
+        
+        .table-container {
+            background: white; border-radius: 12px;
+            box-shadow: var(--shadow); overflow: hidden;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            background: #fafafa; padding: 12px;
+            text-align: left; font-size: 11px; text-transform: uppercase; color: #999;
+        }
+        td { padding: 12px; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+        
+        .empty-state { text-align: center; color: #999; padding: 40px; }
+        .talent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .talent-card {
+            background: white; padding: 20px;
+            border-radius: 12px; box-shadow: var(--shadow);
+            text-align: center;
+        }
+        .talent-avatar {
+            width: 50px; height: 50px;
+            background: var(--primary); color: white;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; margin: 0 auto 10px;
+        }
+        .skill-tag {
+            display: inline-block;
+            background: #E3F2FD; color: #2196F3;
+            padding: 3px 10px; border-radius: 50px;
+            font-size: 11px; margin: 3px;
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="logo-icon">B</div>
+            <div>
+                <div style="font-weight:700;">Bossjob HR</div>
+                <div style="font-size:11px;color:#999;">Employer Dashboard</div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-item active" onclick="showSection('manage-jobs')">💼 Manage Jobs</div>
+            <div class="nav-item" onclick="showSection('chat')">💬 Chat <span class="badge" id="chatBadge">0</span></div>
+            <div class="nav-item" onclick="showSection('reco-talent')">🌟 Reco Talent</div>
+            <div class="nav-item" onclick="showSection('search-talent')">🔍 Search Talent</div>
+            <div class="nav-item" onclick="showSection('talents')">👥 Talents</div>
+            <div class="nav-item" onclick="showSection('interviews')">📅 Interviews <span class="badge" id="interviewBadge">0</span></div>
+            <div class="nav-item" onclick="showSection('company')">🏢 My Company</div>
+            <div class="nav-item" onclick="showSection('analytics')">📊 Analytics</div>
+            <div class="nav-item" onclick="showSection('boss-ai')">🤖 Boss AI</div>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+        </div>
+    </aside>
+    
+    <main class="main">
+        <header class="header">
+            <h1 id="pageTitle">Manage Jobs</h1>
+        </header>
+        
+        <div class="content">
+            <!-- Manage Jobs -->
+            <section class="section active" id="manage-jobs">
+                <div class="section-header">
+                    <h2>My Jobs</h2>
+                    <button class="btn-primary" onclick="location.href='/post-job.html'">+ Post Job</button>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-value" id="statJobs">0</div><div class="stat-label">Total Jobs</div></div>
+                    <div class="stat-card"><div class="stat-value" id="statActiveJobs">0</div><div class="stat-label">Active</div></div>
+                    <div class="stat-card"><div class="stat-value" id="statApplications">0</div><div class="stat-label">Applications</div></div>
+                    <div class="stat-card"><div class="stat-value" id="statViews">0</div><div class="stat-label">Views</div></div>
+                </div>
+                <div class="job-list" id="jobsList">
+                    <p class="empty-state">Loading jobs...</p>
+                </div>
+            </section>
+            
+            <!-- Chat -->
+            <section class="section" id="chat">
+                <div class="section-header"><h2>Chat</h2></div>
+                <p class="empty-state">💬 <a href="/chat.html" style="color:#4CAF50;">Open Chat</a></p>
+            </section>
+            
+            <!-- Reco Talent -->
+            <section class="section" id="reco-talent">
+                <div class="section-header"><h2>Recommended Talent</h2></div>
+                <div class="talent-grid" id="recoTalentList">
+                    <p class="empty-state">Loading...</p>
+                </div>
+            </section>
+            
+            <!-- Search Talent -->
+            <section class="section" id="search-talent">
+                <div class="section-header"><h2>Search Talent</h2></div>
+                <div class="talent-grid" id="searchTalentList">
+                    <p class="empty-state">All candidates listed below</p>
+                </div>
+            </section>
+            
+            <!-- Talents -->
+            <section class="section" id="talents">
+                <div class="section-header"><h2>All Talents</h2></div>
+                <div class="talent-grid" id="talentsList">
+                    <p class="empty-state">Loading...</p>
+                </div>
+            </section>
+            
+            <!-- Interviews -->
+            <section class="section" id="interviews">
+                <div class="section-header"><h2>Interviews</h2></div>
+                <div id="interviewsList">
+                    <p class="empty-state">No interviews scheduled</p>
+                </div>
+            </section>
+            
+            <!-- Company -->
+            <section class="section" id="company">
+                <div class="section-header"><h2>My Company</h2></div>
+                <div id="companyInfo">
+                    <p class="empty-state">Loading company...</p>
+                </div>
+            </section>
+            
+            <!-- Analytics -->
+            <section class="section" id="analytics">
+                <div class="section-header"><h2>Analytics</h2></div>
+                <p class="empty-state">📊 <a href="/analytics.html" style="color:#4CAF50;">Open Analytics</a></p>
+            </section>
+            
+            <!-- Boss AI -->
+            <section class="section" id="boss-ai">
+                <div class="section-header"><h2>Boss AI</h2></div>
+                <p class="empty-state">🤖 <a href="/ai-service.html" style="color:#4CAF50;">Open AI Service</a></p>
+            </section>
+        </div>
+    </main>
+    
+    <script>
+        const API = window.location.origin;
+        
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.target.classList.add('active');
+            
+            const titles = {
+                'manage-jobs': 'Manage Jobs',
+                'chat': 'Chat',
+                'reco-talent': 'Reco Talent',
+                'search-talent': 'Search Talent',
+                'talents': 'Talents',
+                'interviews': 'Interviews',
+                'company': 'My Company',
+                'analytics': 'Analytics',
+                'boss-ai': 'Boss AI'
+            };
+            document.getElementById('pageTitle').textContent = titles[id];
+            
+            // Load data on section switch
+            if (id === 'manage-jobs') loadJobs();
+            if (id === 'company') loadCompany();
+            if (id === 'talents' || id === 'reco-talent' || id === 'search-talent') loadTalents(id);
+            if (id === 'interviews') loadInterviews();
+            if (id === 'chat') loadChatCount();
+        }
+        
+        async function loadJobs() {
+            const token = localStorage.getItem('authToken');
+            if (!token) return;
+            
+            try {
+                const res = await fetch(API + '/api/v1/jobs/my', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                const jobs = data.data || [];
+                
+                document.getElementById('statJobs').textContent = jobs.length;
+                document.getElementById('statActiveJobs').textContent = jobs.filter(j => j.status === 'active').length;
+                document.getElementById('statApplications').textContent = jobs.reduce((s, j) => s + (j.applications_count || 0), 0);
+                document.getElementById('statViews').textContent = jobs.reduce((s, j) => s + (j.views_count || 0), 0);
+                
+                const container = document.getElementById('jobsList');
+                if (jobs.length > 0) {
+                    container.innerHTML = jobs.map(job => `
+                        <div class="job-item">
+                            <h3>${job.title}</h3>
+                            <p>📍 ${job.region} | 💰 ${job.salary_min_etb ? 'ETB ' + job.salary_min_etb : 'Negotiable'}</p>
+                            <p>👁️ ${job.views_count || 0} views | 📝 ${job.applications_count || 0} applications</p>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p class="empty-state">No jobs posted yet</p>';
+                }
+            } catch (e) {}
+        }
+        
+        async function loadTalents(sectionId) {
+            try {
+                const res = await fetch(API + '/api/v1/candidates');
+                const data = await res.json();
+                const talents = data.data || [];
+                
+                const container = document.getElementById(sectionId === 'reco-talent' ? 'recoTalentList' : sectionId === 'search-talent' ? 'searchTalentList' : 'talentsList');
+                
+                if (talents.length > 0) {
+                    container.innerHTML = talents.map(t => `
+                        <div class="talent-card">
+                            <div class="talent-avatar">${(t.full_name || 'U').charAt(0).toUpperCase()}</div>
+                            <h3 style="font-size:15px;font-weight:700;">${t.full_name}</h3>
+                            <p style="font-size:13px;color:#666;">${t.profession_title || 'Professional'}</p>
+                            <p style="font-size:12px;color:#999;">📍 ${t.current_location || 'Ethiopia'}</p>
+                            ${(t.skills || []).slice(0, 3).map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p class="empty-state">No talents found</p>';
+                }
+            } catch (e) {
+                document.getElementById(sectionId + 'List').innerHTML = '<p class="empty-state">Error loading</p>';
+            }
+        }
+        
+        async function loadCompany() {
+            const token = localStorage.getItem('authToken');
+            if (!token) return;
+            
+            try {
+                const res = await fetch(API + '/api/v1/companies/my', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                
+                if (data.success && data.data) {
+                    const c = data.data;
+                    document.getElementById('companyInfo').innerHTML = `
+                        <div class="job-item">
+                            <h3>${c.company_name}</h3>
+                            <p>📋 TIN: ${c.tin_number}</p>
+                            <p>🏭 Industry: ${c.industry || 'N/A'}</p>
+                            <p>📍 ${c.region}, ${c.sub_city || ''}</p>
+                            <p>👔 Your Position: ${c.company_position || 'N/A'}</p>
+                            <p>Status: ${c.is_verified ? '✅ Verified' : '⏳ Pending'}</p>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('companyInfo').innerHTML = 
+                        '<p class="empty-state">No company registered - <a href="/company-register.html">Register</a></p>';
+                }
+            } catch (e) {}
+        }
+        
+        async function loadInterviews() {
+            const token = localStorage.getItem('authToken');
+            if (!token) return;
+            
+            try {
+                const res = await fetch(API + '/api/v1/interviews', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                const interviews = data.data || [];
+                
+                document.getElementById('interviewBadge').textContent = interviews.length;
+                
+                const container = document.getElementById('interviewsList');
+                if (interviews.length > 0) {
+                    container.innerHTML = interviews.map(i => `
+                        <div class="job-item">
+                            <h3>${i.candidate_name || 'Candidate'}</h3>
+                            <p>💼 ${i.job_title || 'Job'}</p>
+                            <p>📅 ${i.interview_date} at ${i.interview_time}</p>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p class="empty-state">No interviews scheduled</p>';
+                }
+            } catch (e) {
+                document.getElementById('interviewsList').innerHTML = '<p class="empty-state">No interviews</p>';
+            }
+        }
+        
+        async function loadChatCount() {
+            const token = localStorage.getItem('authToken');
+            if (!token) return;
+            
+            try {
+                const res = await fetch(API + '/api/v1/chats/threads', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                const threads = data.data || [];
+                const unread = threads.filter(t => t.unread_count > 0).length;
+                document.getElementById('chatBadge').textContent = unread;
+            } catch (e) {}
+        }
+        
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userRole');
+            location.href = '/';
+        }
+        
+        // Initialize
+        loadJobs();
+        loadChatCount();
+    </script>
+</body>
+</html>

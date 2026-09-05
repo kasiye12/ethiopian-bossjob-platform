@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Bossjob Ethiopia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f5f6fa; }
+        .container { max-width: 800px; margin: 30px auto; padding: 20px; }
+        .header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white; text-align: center;
+            padding: 60px 20px; border-radius: 16px; margin-bottom: 30px;
+        }
+        .card {
+            background: white; padding: 30px; border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 20px;
+        }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; text-align: center; }
+        .stat h3 { font-size: 26px; color: #4CAF50; }
+    </style>
+</head>
+<body>
+    <header class="navbar" id="appNavbar"></header>
+    <div class="container">
+        <div class="header">
+            <h1>🇪🇹 About Bossjob Ethiopia</h1>
+            <p>Ethiopia's #1 Job Platform</p>
+        </div>
+        <div class="card">
+            <h2>Our Mission</h2>
+            <p>Connecting talented professionals with top employers across Ethiopia.</p>
+        </div>
+        <div class="card">
+            <h2>Platform Statistics</h2>
+            <div class="stats">
+                <div class="stat"><h3>10K+</h3><p>Jobs</p></div>
+                <div class="stat"><h3>5K+</h3><p>Companies</p></div>
+                <div class="stat"><h3>50K+</h3><p>Job Seekers</p></div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer" id="appFooter"></footer>
+    <script src="/js/i18n.js"></script>
+    <script src="/js/master-layout.js"></script>
+</body>
+</html>

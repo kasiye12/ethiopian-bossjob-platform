@@ -1,0 +1,149 @@
+/* Language Switcher Styles */
+.language-switcher {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.language-switcher select {
+    padding: 8px 30px 8px 12px;
+    border: 1px solid var(--border, #e0e0e0);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    background: white;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    transition: all 0.3s;
+}
+
+.language-switcher select:hover {
+    border-color: #4CAF50;
+}
+
+.language-switcher select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+/* Globe icon */
+.language-globe {
+    margin-right: 5px;
+    font-size: 16px;
+}
+
+/* RTL support for Amharic */
+html[lang="am"] {
+    direction: ltr; /* Amharic uses left-to-right */
+}
+
+/* Ethiopian font support */
+@font-face {
+    font-family: 'Noto Sans Ethiopic';
+    src: url('https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;500;600;700&display=swap');
+}
+
+html[lang="am"] body,
+html[lang="am"] input,
+html[lang="am"] select,
+html[lang="am"] textarea,
+html[lang="am"] button {
+    font-family: 'Noto Sans Ethiopic', 'Plus Jakarta Sans', sans-serif;
+}
+
+html[lang="om"] body,
+html[lang="om"] input,
+html[lang="om"] select,
+html[lang="om"] textarea,
+html[lang="om"] button {
+    font-family: 'Noto Sans Ethiopic', 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Language dropdown with flags */
+.language-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.language-dropdown-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid var(--border, #e0e0e0);
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.language-dropdown-btn:hover {
+    border-color: #4CAF50;
+}
+
+.language-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid var(--border, #e0e0e0);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    min-width: 150px;
+    display: none;
+    z-index: 1000;
+    margin-top: 5px;
+}
+
+.language-dropdown-menu.open {
+    display: block;
+    animation: fadeIn 0.2s;
+}
+
+.language-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.language-option:hover {
+    background: #f5f5f5;
+}
+
+.language-option.active {
+    background: #E8F5E9;
+    color: #4CAF50;
+    font-weight: 600;
+}
+
+.language-flag {
+    font-size: 18px;
+}
+
+.language-name {
+    flex: 1;
+}
+
+.language-check {
+    color: #4CAF50;
+    font-weight: 700;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}

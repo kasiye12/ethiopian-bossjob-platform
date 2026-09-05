@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applicant CV - Bossjob HR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --dark: #1a1a2e;
+            --border: #e0e0e0;
+            --bg: #f5f6fa;
+            --shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); }
+        .container { max-width: 900px; margin: 30px auto; padding: 20px; }
+        
+        .cv-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .cv-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .cv-avatar {
+            width: 90px;
+            height: 90px;
+            background: white;
+            color: #764ba2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 800;
+            margin: 0 auto 15px;
+        }
+        .cv-header h1 { font-size: 28px; margin-bottom: 5px; }
+        .cv-header p { opacity: 0.9; font-size: 15px; }
+        
+        .cv-body { padding: 35px; }
+        .cv-section { margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+        .cv-section:last-child { border-bottom: none; }
+        .cv-section h2 {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .cv-section p { color: #555; line-height: 1.7; font-size: 14px; }
+        
+        .skills-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .skill-tag {
+            background: #E3F2FD;
+            color: #2196F3;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .info-item {
+            padding: 12px;
+            background: var(--bg);
+            border-radius: 8px;
+        }
+        .info-item label {
+            display: block;
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 3px;
+        }
+        .info-item span { font-weight: 600; font-size: 14px; }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+        .btn {
+            flex: 1;
+            padding: 13px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: #388E3C; }
+        .btn-outline { background: white; color: var(--primary); border: 2px solid var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: white; }
+        .btn-danger { background: #ff4444; color: white; }
+        
+        .loading { text-align: center; padding: 50px; color: #999; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="cv-container" id="cvContent">
+            <div class="loading">Loading applicant CV...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        
+        document.addEventListener('DOMContentLoaded', loadCV);
+        
+        async function loadCV() {
+            const params = new URLSearchParams(window.location.search);
+            const candidateId = params.get('id');
+            const jobId = params.get('jobId');
+            
+            if (!candidateId) {
+                document.getElementById('cvContent').innerHTML = '<p style="text-align:center;padding:50px;">No candidate specified</p>';
+                return;
+            }
+            
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                document.getElementById('cvContent').innerHTML = '<p style="text-align:center;padding:50px;">Please login first</p>';
+                return;
+            }
+            
+            try {
+                // Get candidate profile
+                const profileRes = await fetch(`${API_URL}/api/v1/candidates/my-profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const profileData = await profileRes.json();
+                
+                // Get user info
+                const userRes = await fetch(`${API_URL}/api/v1/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const userData = await userRes.json();
+                
+                const user = userData.data || {};
+                const profile = profileData.data || {};
+                
+                renderCV(user, profile, jobId);
+            } catch (e) {
+                // For demo, show sample CV
+                renderSampleCV(candidateId, jobId);
+            }
+        }
+        
+        function renderCV(user, profile, jobId) {
+            const skills = profile.skills || [];
+            const initials = (user.full_name || 'U').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+            
+            document.getElementById('cvContent').innerHTML = `
+                <div class="cv-header">
+                    <div class="cv-avatar">${initials}</div>
+                    <h1>${user.full_name || 'Candidate'}</h1>
+                    <p>${profile.profession_title || 'Professional'}</p>
+                </div>
+                <div class="cv-body">
+                    <div class="cv-section">
+                        <h2>📞 Contact Information</h2>
+                        <div class="info-grid">
+                            <div class="info-item"><label>Phone</label><span>${user.phone_number || 'N/A'}</span></div>
+                            <div class="info-item"><label>Email</label><span>${user.email || 'N/A'}</span></div>
+                            <div class="info-item"><label>Location</label><span>${profile.current_location || 'Ethiopia'}</span></div>
+                            <div class="info-item"><label>Experience</label><span>${profile.years_of_experience || 0} years</span></div>
+                            <div class="info-item"><label>Education</label><span>${profile.education_level || 'N/A'}</span></div>
+                            <div class="info-item"><label>Expected Salary</label><span>ETB ${profile.expected_salary_min || 'Negotiable'}</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="cv-section">
+                        <h2>🛠️ Skills</h2>
+                        <div class="skills-list">
+                            ${skills.length > 0 ? skills.map(s => `<span class="skill-tag">${s}</span>`).join('') : '<p>No skills listed</p>'}
+                        </div>
+                    </div>
+                    
+                    <div class="cv-section">
+                        <h2>📝 Professional Summary</h2>
+                        <p>${profile.summary || 'No summary provided'}</p>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="contactCandidate('${user.id}')">💬 Contact</button>
+                        <button class="btn btn-outline" onclick="scheduleInterview('${user.id}', '${jobId}')">📅 Schedule Interview</button>
+                        <button class="btn btn-danger" onclick="rejectCandidate('${user.id}')">❌ Reject</button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderSampleCV(candidateId, jobId) {
+            document.getElementById('cvContent').innerHTML = `
+                <div class="cv-header">
+                    <div class="cv-avatar">KT</div>
+                    <h1>Kasiye Taye</h1>
+                    <p>Data Encoder</p>
+                </div>
+                <div class="cv-body">
+                    <div class="cv-section">
+                        <h2>📞 Contact Information</h2>
+                        <div class="info-grid">
+                            <div class="info-item"><label>Phone</label><span>+251977777777</span></div>
+                            <div class="info-item"><label>Email</label><span>kasiye@email.com</span></div>
+                            <div class="info-item"><label>Location</label><span>Addis Ababa, Bole</span></div>
+                            <div class="info-item"><label>Experience</label><span>3 years</span></div>
+                            <div class="info-item"><label>Education</label><span>Bachelor's Degree</span></div>
+                            <div class="info-item"><label>Expected Salary</label><span>ETB 20,000</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="cv-section">
+                        <h2>🛠️ Skills</h2>
+                        <div class="skills-list">
+                            <span class="skill-tag">Data Entry</span>
+                            <span class="skill-tag">Microsoft Excel</span>
+                            <span class="skill-tag">Typing</span>
+                            <span class="skill-tag">Database Management</span>
+                        </div>
+                    </div>
+                    
+                    <div class="cv-section">
+                        <h2>📝 Professional Summary</h2>
+                        <p>Experienced Data Encoder with 3 years of experience in data entry, database management, and administrative support.</p>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="contactCandidate('${candidateId}')">💬 Contact</button>
+                        <button class="btn btn-outline" onclick="scheduleInterview('${candidateId}', '${jobId}')">📅 Schedule Interview</button>
+                        <button class="btn btn-danger" onclick="rejectCandidate('${candidateId}')">❌ Reject</button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function contactCandidate(id) {
+            window.location.href = '/chat.html';
+        }
+        
+        function scheduleInterview(id, jobId) {
+            alert('Interview scheduling for candidate: ' + id);
+        }
+        
+        function rejectCandidate(id) {
+            if (confirm('Reject this candidate?')) {
+                alert('Candidate rejected');
+            }
+        }
+    </script>
+</body>
+</html>

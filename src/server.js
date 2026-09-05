@@ -4,90 +4,131 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
-const session = require('express-session');
-const connectRedis = require('connect-redis');
+const path = require('path');
+const fs = require('fs');
 const config = require('./config');
 const redis = require('./config/redis');
 const logger = require('./utils/logger');
 const errorHandler = require('./middleware/errorHandler');
 const { apiLimiter } = require('./middleware/rateLimiter');
-const SocketServer = require('./websocket/socketServer');
-
-// Import routes
-const authRoutes = require('./routes/authRoutes');
-// Add more routes as needed
 
 class Application {
     constructor() {
         this.app = express();
         this.server = http.createServer(this.app);
         this.setupMiddleware();
+        this.setupStaticFiles();
         this.setupRoutes();
         this.setupErrorHandling();
         this.setupWebSocket();
     }
 
     setupMiddleware() {
-        // Security middleware
-        this.app.use(helmet());
+        this.app.use(helmet({ 
+            contentSecurityPolicy: false,
+            crossOriginEmbedderPolicy: false,
+        }));
         
-        // CORS configuration
         this.app.use(cors({
-            origin: config.env === 'production' 
-                ? ['https://bossjob.et', 'https://app.bossjob.et']
-                : '*',
+            origin: '*',
             credentials: true,
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
             allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
         }));
         
-        // Compression
         this.app.use(compression());
-        
-        // Body parsing
         this.app.use(express.json({ limit: '10mb' }));
         this.app.use(express.urlencoded({ extended: true, limit: '10mb' }));
         this.app.use(cookieParser());
-        
-        // Session configuration
-        const RedisStore = connectRedis(session);
-        this.app.use(session({
-            store: new RedisStore({ client: redis }),
-            secret: config.jwt.secret,
-            resave: false,
-            saveUninitialized: false,
-            cookie: {
-                secure: config.env === 'production',
-                httpOnly: true,
-                maxAge: 24 * 60 * 60 * 1000, // 24 hours
-                sameSite: 'strict',
-            },
-        }));
-        
-        // Rate limiting
         this.app.use('/api', apiLimiter);
         
-        // Request logging
         this.app.use((req, res, next) => {
             const start = Date.now();
             res.on('finish', () => {
                 const duration = Date.now() - start;
-                if (req.path !== '/health') {
-                    logger.info(`${req.method} ${req.path} ${res.statusCode} ${duration}ms`, {
-                        method: req.method,
-                        path: req.path,
-                        status: res.statusCode,
-                        duration,
-                        ip: req.ip,
-                    });
-                }
+                logger.info(`${req.method} ${req.path} ${res.statusCode} ${duration}ms`);
             });
             next();
         });
     }
 
+    setupStaticFiles() {
+        const publicDir = path.join(__dirname, '../public');
+        
+        // Check if public directory exists
+        if (!fs.existsSync(publicDir)) {
+            console.error('❌ public directory not found at:', publicDir);
+            fs.mkdirSync(publicDir, { recursive: true });
+        }
+        
+        // Serve static files
+        this.app.use(express.static(publicDir));
+        this.app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+        
+        // Explicitly serve all HTML pages
+        const pages = [
+    'applicant-cv.html',
+            'index.html',
+            'jobs.html',
+            'jobs-full.html',
+            'companies.html',
+            'hr-dashboard.html',
+            'dashboard.html',
+            'chat.html',
+            'resume.html',
+            'profile.html',
+            'analytics.html',
+            'boss-ai.html',
+            'admin.html',
+            'payment.html',
+            'status.html',
+            'api-docs.html',
+            'company-positions.html',
+            'index-lang.html',
+            'verify-company.html',
+            'company-register.html',
+            'post-job.html',
+        ];
+        
+        pages.forEach(page => {
+            const filePath = path.join(publicDir, page);
+            this.app.get(`/${page}`, (req, res) => {
+                if (fs.existsSync(filePath)) {
+                    res.sendFile(filePath);
+                } else {
+                    console.warn(`⚠️  Page not found: ${page}`);
+                    res.status(404).send(`Page not found: ${page}`);
+                }
+            });
+        });
+        
+        // Serve API docs
+        this.app.get('/api-docs', (req, res) => {
+            const docsPath = path.join(publicDir, 'api-docs.html');
+            if (fs.existsSync(docsPath)) {
+                res.sendFile(docsPath);
+            } else {
+                res.json({
+                    name: 'Bossjob Ethiopia API',
+                    version: '1.0.0',
+                    endpoints: '/api/v1'
+                });
+            }
+        });
+        
+        // Serve home page
+        this.app.get('/', (req, res) => {
+            const indexPath = path.join(publicDir, 'index.html');
+            if (fs.existsSync(indexPath)) {
+                res.sendFile(indexPath);
+            } else {
+                res.send('<h1>Bossjob Ethiopia</h1><p>Server is running. Please check configuration.</p>');
+            }
+        });
+    }
+
     setupRoutes() {
-        // Health check endpoint
+        // Health checks
         this.app.get('/health', (req, res) => {
             res.status(200).json({
                 status: 'OK',
@@ -97,15 +138,85 @@ class Application {
             });
         });
         
-        // API routes
-        this.app.use('/api/v1/auth', authRoutes);
-        // Add more routes here
+        this.app.get('/health/db', async (req, res) => {
+            try {
+                const pool = require('./config/database');
+                await pool.query('SELECT 1');
+                res.status(200).json({ status: 'OK', database: 'connected' });
+            } catch (error) {
+                res.status(500).json({ status: 'ERROR', database: 'disconnected', error: error.message });
+            }
+        });
         
-        // 404 handler
-        this.app.use('*', (req, res) => {
+        this.app.get('/health/redis', async (req, res) => {
+            try {
+                const result = await redis.ping();
+                res.status(200).json({ status: 'OK', redis: result });
+            } catch (error) {
+                res.status(500).json({ status: 'ERROR', redis: 'disconnected', error: error.message });
+            }
+        });
+        
+        // API Index
+        this.app.get('/api/v1', (req, res) => {
+            res.json({
+                success: true,
+                message: 'Bossjob Ethiopia API',
+                version: '1.0.0',
+                baseUrl: `${req.protocol}://${req.get('host')}/api/v1`,
+                endpoints: {
+                    auth: '/api/v1/auth',
+                    companies: '/api/v1/companies',
+                    jobs: '/api/v1/jobs',
+                    applications: '/api/v1/applications',
+                    chats: '/api/v1/chats',
+                    candidates: '/api/v1/candidates',
+                    talents: '/api/v1/talents',
+                    interviews: '/api/v1/interviews',
+                    analytics: '/api/v1/analytics',
+                    payments: '/api/v1/payments',
+                    admin: '/api/v1/admin',
+                    notifications: '/api/v1/notifications',
+                }
+            });
+        });
+        
+        // API routes
+        const routeConfigs = [
+            { path: '/api/v1/auth', file: './routes/authRoutes', name: 'Auth' },
+            { path: '/api/v1/companies', file: './routes/companyRoutes', name: 'Company' },
+            { path: '/api/v1/jobs', file: './routes/jobRoutes', name: 'Job' },
+            { path: '/api/v1/applications', file: './routes/applicationRoutes', name: 'Application' },
+            { path: '/api/v1/chats', file: './routes/chatRoutes', name: 'Chat' },
+            { path: '/api/v1/candidates', file: './routes/candidateRoutes', name: 'Candidate' },
+            { path: '/api/v1/talents', file: './routes/talentRoutes', name: 'Talent' },
+            { path: '/api/v1/interviews', file: './routes/interviewRoutes', name: 'Interview' },
+            { path: '/api/v1/analytics', file: './routes/analyticsRoutes', name: 'Analytics' },
+            { path: '/api/v1/cv', file: './routes/cvRoutes', name: 'CV' },
+            { path: '/api/v1/notifications', file: './routes/notificationRoutes', name: 'Notification' },
+            { path: '/api/v1/payments', file: './routes/paymentRoutes', name: 'Payment' },
+            { path: '/api/v1/admin', file: './routes/adminRoutes', name: 'Admin' },
+            { path: '/api/v1/applicants', file: './routes/applicantRoutes', name: 'Applicant' },
+            { path: '/api/v1/resume', file: './routes/resumeRoutes', name: 'Resume' },
+            { path: '/api/v1/ai', file: './routes/aiRoutes', name: 'AI Service' },
+        ];
+        
+        routeConfigs.forEach(({ path, file, name }) => {
+            try {
+                const routes = require(file);
+                this.app.use(path, routes);
+                console.log(`  ✅ ${name} routes loaded (${path})`);
+            } catch (error) {
+                console.error(`  ❌ Failed to load ${name} routes: ${error.message}`);
+            }
+        });
+        
+        // 404 handler for API
+        this.app.use('/api/*', (req, res) => {
             res.status(404).json({
                 success: false,
-                message: 'Route not found',
+                message: 'API Route not found',
+                path: req.originalUrl,
             });
         });
     }
@@ -115,81 +226,59 @@ class Application {
     }
 
     setupWebSocket() {
-        this.socketServer = new SocketServer(this.server);
-        this.app.set('socketServer', this.socketServer);
+        try {
+            const SocketServer = require('./websocket/socketServer');
+            this.socketServer = new SocketServer(this.server);
+            this.app.set('socketServer', this.socketServer);
+            console.log('  ✅ WebSocket server initialized');
+        } catch (error) {
+            console.error('  ❌ WebSocket init failed:', error.message);
+        }
     }
 
     async start() {
         try {
-            // Test database connection
             const pool = require('./config/database');
             await pool.query('SELECT 1');
-            logger.info('✅ Database connected successfully');
+            logger.info('✅ Database connected');
             
-            // Test Redis connection
             await redis.ping();
-            logger.info('✅ Redis connected successfully');
+            logger.info('✅ Redis connected');
             
-            // Start server
-            this.server.listen(config.port, config.host, () => {
-                logger.info(`🚀 Server running on http://${config.host}:${config.port}`);
-                logger.info(`Environment: ${config.env}`);
-                logger.info(`Health check: http://${config.host}:${config.port}/health`);
+            const PORT = 3000;
+            
+            this.server.listen(PORT, () => {
+                console.log('');
+                console.log('========================================');
+                console.log('🎉 Ethiopian Bossjob Platform Running!');
+                console.log('========================================');
+                console.log('');
+                console.log(`📍 Home: http://localhost:${PORT}/`);
+                console.log(`📍 Jobs: http://localhost:${PORT}/jobs.html`);
+                console.log(`📍 Jobs Full: http://localhost:${PORT}/jobs-full.html`);
+                console.log(`📍 HR Dashboard: http://localhost:${PORT}/hr-dashboard.html`);
+                console.log(`📍 API: http://localhost:${PORT}/api/v1`);
+                console.log(`📍 Health: http://localhost:${PORT}/health`);
+                console.log('');
+                console.log('========================================');
             });
             
         } catch (error) {
-            logger.error('Failed to start server:', error);
+            logger.error('Failed to start:', error);
+            console.error('❌ Failed to start:', error.message);
             process.exit(1);
         }
     }
-
-    async shutdown() {
-        logger.info('Shutting down server...');
-        
-        this.server.close(async () => {
-            logger.info('HTTP server closed');
-            
-            // Close database connection
-            const pool = require('./config/database');
-            await pool.end();
-            logger.info('Database connection closed');
-            
-            // Close Redis connection
-            await redis.quit();
-            logger.info('Redis connection closed');
-            
-            process.exit(0);
-        });
-        
-        // Force shutdown after 10 seconds
-        setTimeout(() => {
-            logger.error('Forced shutdown after timeout');
-            process.exit(1);
-        }, 10000);
-    }
 }
 
-// Create application instance
 const app = new Application();
 
-// Handle process signals
-process.on('SIGTERM', () => app.shutdown());
-process.on('SIGINT', () => app.shutdown());
-process.on('unhandledRejection', (error) => {
-    logger.error('Unhandled rejection:', error);
-});
+process.on('SIGTERM', () => process.exit(0));
+process.on('SIGINT', () => process.exit(0));
 
-process.on('uncaughtException', (error) => {
-    logger.error('Uncaught exception:', error);
-    app.shutdown();
+app.start().catch((error) => {
+    logger.error('Application failed:', error);
+    process.exit(1);
 });
-
-// Start the application
-if (require.main === module) {
-    app.start().catch((error) => {
-        logger.error('Application failed to start:', error);
-        process.exit(1);
-    });
-}
 
 module.exports = app;
